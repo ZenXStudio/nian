@@ -78,7 +78,7 @@ curl http://localhost:3000/health
 ### 方式三：查看在线文档
 
 如果只想了解功能，无需部署即可查看：
-- 📖 [API 接口列表](#api-接口列表) - 查看所有24个已实现的接口
+- 📖 [API 接口列表](#api-接口列表) - 查看所有35个已实现的接口
 - 📖 [使用示例](#使用示例) - 查看可执行的 API 调用示例
 - 📖 [完整部署指南](docs/DEPLOYMENT.md) - 详细的部署文档（779行）
 
@@ -193,7 +193,7 @@ curl http://localhost:3000/health
 docker-compose exec postgres psql -U mental_app -d mental_app
 
 # 执行 SQL 查询
-\dt  # 查看所有表，应该有 7 张表
+\dt  # 查看所有表，应该有 8 张表
 SELECT COUNT(*) FROM methods WHERE status = 'published';  # 应该返回 5
 \q   # 退出
 ```

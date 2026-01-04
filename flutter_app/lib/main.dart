@@ -10,7 +10,8 @@ import 'package:mental_app/presentation/auth/bloc/auth_event.dart';
 import 'package:mental_app/presentation/auth/pages/splash_page.dart';
 import 'package:mental_app/presentation/auth/pages/login_page.dart';
 import 'package:mental_app/presentation/auth/pages/register_page.dart';
-import 'package:mental_app/presentation/home/home_page.dart';
+import 'package:mental_app/presentation/home/main_page.dart';
+import 'package:mental_app/presentation/methods/pages/method_detail_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,7 +49,32 @@ class MyApp extends StatelessWidget {
           '/': (context) => const SplashPage(),
           '/login': (context) => const LoginPage(),
           '/register': (context) => const RegisterPage(),
-          '/home': (context) => const HomePage(),
+          '/home': (context) => const MainPage(),
+        },
+        onGenerateRoute: (settings) {
+          // 处理需要参数的路由
+          if (settings.name == '/method-detail') {
+            final methodId = settings.arguments as int?;
+            if (methodId != null) {
+              return MaterialPageRoute(
+                builder: (context) => MethodDetailPage(methodId: methodId),
+              );
+            }
+          }
+          return null;
+        },
+      ),
+    );
+  }
+}
+            final methodId = settings.arguments as int?;
+            if (methodId != null) {
+              return MaterialPageRoute(
+                builder: (context) => MethodDetailPage(methodId: methodId),
+              );
+            }
+          }
+          return null;
         },
       ),
     );
