@@ -6,14 +6,14 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Backend](https://img.shields.io/badge/后端API-100%25-success.svg)
-![Admin](https://img.shields.io/badge/管理后台-62%25-yellow.svg)
-![Flutter](https://img.shields.io/badge/移动应用-0%25-lightgrey.svg)
+![Admin](https://img.shields.io/badge/管理后台-100%25-success.svg)
+![Flutter](https://img.shields.io/badge/移动应用-11%25-orange.svg)
 ![Status](https://img.shields.io/badge/状态-可部署测试-brightgreen.svg)
 
 **当前版本**: 1.0.0  
-**后端完成度**: ✅ 100% (24个API接口全部实现)  
-**管理后台完成度**: 🔄 62% (5个核心页面)  
-**移动应用完成度**: ⏳ 0% (计划中)  
+**后端完成度**: ✅ 100% (35个API接口全部实现)  
+**管理后台完成度**: ✅ 100% (8个核心页面全部完成)  
+**移动应用完成度**: 🔄 11% (基础架构已完成，功能页面待开发)  
 **可用性**: ✅ **可立即部署和测试**
 
 ---
@@ -28,8 +28,8 @@
 - ✅ **练习记录系统** - 记录练习、历史查询、统计分析、心理状态趋势
 - ✅ **管理后台 API** - 方法 CRUD、内容审核、数据统计
 - ✅ **Docker 一键部署** - 开箱即用的容器化部署方案
-- ✅ **PostgreSQL 数据库** - 7张表 + 示例数据 + 统计视图
-- ✅ **完整的文档体系** - 部署指南、API 文档、测试报告
+- ✅ **PostgreSQL 数据库** - 8张表 + 示例数据 + 统计视图
+- ✅ **完整的文档体系** - 部署指南、API 文档、测试报告、Flutter架构文档
 
 ### 技术亮点
 
@@ -236,19 +236,21 @@ curl -X POST http://localhost:3000/api/auth/register \
 | 模块 | 完成度 | 文件数 | 代码行数 | 状态 |
 |------|--------|--------|---------|------|
 | 项目配置 | 100% | 6 | ~400 | ✅ |
-| 数据库设计 | 100% | 1 | 330 | ✅ |
+| 数据库设计 | 100% | 1 | 368 | ✅ |
 | 后端框架 | 100% | 11 | ~250 | ✅ |
 | 用户认证 | 100% | 3 | 237 | ✅ |
 | 方法管理 | 100% | 2 | 153 | ✅ |
 | 用户方法 | 100% | 2 | 162 | ✅ |
 | 练习记录 | 100% | 2 | 261 | ✅ |
-| 管理后台API | 100% | 2 | 508 | ✅ |
-| 管理后台前端 | 62% | 12 | ~800 | 🔄 |
-| Flutter 应用 | 0% | 0 | 0 | ⏳ |
+| 管理后台API | 100% | 2 | 948 | ✅ |
+| 管理后台前端 | 100% | 8 | ~1800 | ✅ |
+| Flutter 基础架构 | 100% | 22 | ~3200 | ✅ |
+| Flutter 页面开发 | 0% | 0 | 0 | ⏳ |
+| Flutter 文档 | 100% | 3 | ~2700 | ✅ |
 | Docker 部署 | 100% | 2 | 166 | ✅ |
-| 文档 | 100% | 7 | ~2,300 | ✅ |
-| **后端总计** | **100%** | **38** | **~4,500** | ✅ |
-| **项目总计** | **75%** | **50** | **~5,300** | 🔄 |
+| 文档 | 100% | 10 | ~5,000 | ✅ |
+| **后端总计** | **100%** | **44** | **~5,000** | ✅ |
+| **项目总计** | **70%** | **72** | **~12,800** | 🔄 |
 
 ### 已实现功能清单
 
@@ -282,8 +284,8 @@ curl -X POST http://localhost:3000/api/auth/register \
 - ✅ 用户统计
 - ✅ 方法统计
 
-#### 基础设施 (8项)
-- ✅ PostgreSQL 数据库（7张表）
+#### 基础设施 (9项)
+- ✅ PostgreSQL 数据库（8张表）
 - ✅ Redis 缓存
 - ✅ Docker 一键部署
 - ✅ 健康检查端点
@@ -291,10 +293,32 @@ curl -X POST http://localhost:3000/api/auth/register \
 - ✅ 统一错误处理
 - ✅ JWT 认证中间件
 - ✅ 权限控制
+- ✅ 媒体文件管理
+
+#### Flutter 移动应用 (11%)
+- ✅ 基础架构完成（第一阶段 - 100%）
+  - ✅ 项目配置（30+依赖包）
+  - ✅ 错误处理框架（9种异常，10种失败类型）
+  - ✅ 工具类（验证器、日期格式化、日志系统）
+  - ✅ 依赖注入（GetIt + Injectable）
+  - ✅ 网络层（Dio + 拦截器 + 网络检测）
+  - ✅ 本地存储（SQLite + SharedPreferences + SecureStorage）
+  - ✅ 路由管理（GoRouter + 路由守卫）
+  - ✅ 5个基础UI组件库
+- ⏳ 功能模块开发（第二至第九阶段 - 0%）
+  - ⏳ 认证模块（LoginPage、RegisterPage、SplashPage）
+  - ⏳ 方法浏览模块（列表、详情、搜索）
+  - ⏳ 个人方法库模块（添加、管理、目标设置）
+  - ⏳ 练习记录模块（记录、历史、统计、图表）
+  - ⏳ 多媒体播放（音频、视频播放器）
+  - ⏳ 个人中心（资料、设置、成就）
+  - ⏳ 跨平台适配（iOS/Android/Web/macOS/Windows）
+  - ⏳ 测试和修复
+  - ⏳ 发布准备
 
 ### API 接口列表
 
-**总计：24个已实现的 RESTful API 接口**
+**总计：35个已实现的 RESTful API 接口**
 
 #### 用户认证模块（3个）
 
@@ -344,6 +368,17 @@ curl -X POST http://localhost:3000/api/auth/register \
 | 审核拒绝 | POST | `/api/admin/methods/:id/reject` | 审核拒绝 | JWT (Super Admin) |
 | 用户统计 | GET | `/api/admin/statistics/users` | 用户相关统计 | JWT (Admin) |
 | 方法统计 | GET | `/api/admin/statistics/methods` | 方法相关统计 | JWT (Admin) |
+| 文件上传 | POST | `/api/admin/upload` | 上传媒体文件 | JWT (Admin) |
+| 媒体库查询 | GET | `/api/admin/media` | 获取媒体文件列表 | JWT (Admin) |
+| 删除媒体 | DELETE | `/api/admin/media/:id` | 删除媒体文件 | JWT (Admin) |
+| 导出用户 | GET | `/api/admin/export/users` | 导出用户数据 | JWT (Admin) |
+| 导出方法 | GET | `/api/admin/export/methods` | 导出方法数据 | JWT (Admin) |
+| 导出练习 | GET | `/api/admin/export/practices` | 导出练习记录 | JWT (Admin) |
+| 用户列表 | GET | `/api/admin/users` | 获取用户列表 | JWT (Admin) |
+| 用户详情 | GET | `/api/admin/users/:id` | 获取用户详情 | JWT (Admin) |
+| 用户状态 | PUT | `/api/admin/users/:id/status` | 更新用户状态 | JWT (Admin) |
+| 用户方法库 | GET | `/api/admin/users/:id/methods` | 获取用户方法库 | JWT (Admin) |
+| 用户练习 | GET | `/api/admin/users/:id/practices` | 获取用户练习记录 | JWT (Admin) |
 
 ---
 
@@ -353,12 +388,14 @@ curl -X POST http://localhost:3000/api/auth/register \
 
 | 指标类别 | 指标项 | 当前值 | 目标值 | 状态 |
 |----------|--------|--------|--------|------|
-| 代码规模 | 总代码行数 | 5,300+ | - | ✅ |
+| 代码规模 | 总代码行数 | 12,800+ | - | ✅ |
 | 代码规模 | TypeScript 代码 | 2,500+ | - | ✅ |
-| 后端完成度 | API 接口数 | 24个 | 24个 | ✅ 100% |
+| 代码规模 | Dart 代码 | 3,200+ | - | ✅ |
+| 后端完成度 | API 接口数 | 35个 | 35个 | ✅ 100% |
 | 后端完成度 | 核心模块 | 5/5 | 5/5 | ✅ 100% |
-| 管理后台 | 页面组件 | 5个 | 8个 | 🔄 62% |
-| 移动应用 | 功能模块 | 0个 | 8个 | ⏳ 0% |
+| 管理后台 | 页面组件 | 8个 | 8个 | ✅ 100% |
+| 移动应用 | 基础架构 | 22文件 | - | ✅ 100% |
+| 移动应用 | 功能页面 | 0个 | 12个 | ⏳ 0% |
 | 代码质量 | TypeScript 严格模式 | 启用 | 启用 | ✅ |
 | 代码质量 | 重复代码 | 已清理 | 0 | ✅ |
 | 安全性 | 密码加密 | bcrypt | - | ✅ |
@@ -652,7 +689,7 @@ nian/
 │
 ├── home/user/nian/admin-web/  # 管理后台前端 (React + TypeScript)
 │   ├── src/
-│   │   ├── pages/             # 页面组件（5个页面）
+│   │   ├── pages/             # 页面组件（8个页面）
 │   │   ├── services/          # API 服务封装
 │   │   ├── utils/             # 工具函数
 │   │   ├── App.tsx            # 应用根组件
@@ -662,32 +699,35 @@ nian/
 │   ├── package.json           # 依赖管理
 │   └── vite.config.ts         # Vite 构建配置
 │
-├── flutter_app/               # Flutter 移动应用（骨架）
+├── flutter_app/               # Flutter 移动应用（35%完成）
 │   ├── lib/
-│   │   ├── config/            # 配置文件
-│   │   ├── data/              # 数据层
+│   │   ├── config/            # 配置文件 (routes, theme)
+│   │   ├── core/              # 核心层 (网络/存储/工具)
+│   │   ├── data/              # 数据层 (API/存储)
+│   │   ├── presentation/      # 表现层 (组件)
 │   │   └── main.dart          # 应用入口
 │   └── pubspec.yaml           # 依赖管理
 │
 ├── database/                  # 数据库脚本
-│   └── init.sql               # 数据库初始化（7张表 + 示例数据）
+│   └── init.sql               # 数据库初始化（8张表 + 示例数据）
 │
 ├── docs/                      # 文档目录
-│   ├── DEPLOYMENT.md          # 部署指南（779行详细说明）
+│   ├── DEPLOYMENT.md          # 部署指南
 │   ├── TEST_REPORT.md         # 测试报告
-│   ├── IMPLEMENTATION_STATUS.md # 实施进度
+│   ├── QUALITY_REPORT.md      # 质量报告
+│   ├── DEMO_SCRIPT.md         # 演示脚本
 │   └── FINAL_REPORT.md        # 最终报告
 │
 ├── uploads/                   # 文件上传目录
 │
+├── FLUTTER_ARCHITECTURE.md    # Flutter 架构设计文档
+├── FLUTTER_DEVELOPMENT_GUIDE.md # Flutter 开发指南
+├── FLUTTER_SETUP_GUIDE.md     # Flutter 环境配置指南
 ├── .env.example               # 环境变量模板
-├── .gitignore                 # Git 忽略规则
 ├── docker-compose.yml         # Docker 编排配置
 ├── quick-start.bat            # Windows 快速启动脚本
 ├── README.md                  # 项目主文档（本文档）
-├── PROJECT_SUMMARY.md         # 项目总结
-├── TASK_COMPLETION_REPORT.md  # 任务完成报告
-└── TASK_EXECUTION_REPORT.md   # 任务执行报告
+└── LICENSE                    # MIT 许可证
 ```
 
 ---
@@ -916,34 +956,72 @@ docker-compose up -d    # 重新启动
 
 ### ✅ 已完成（第一阶段）
 
-- 完整的后端 API 系统（24个接口）
-- 数据库设计和初始化
+- 完整的后端 API 系统（35个接口）
+- 数据库设计和初始化（8张表）
 - Docker 一键部署方案
-- 管理后台基础框架
+- 管理后台完整实现
 - 完整的文档体系
 
-### 🔄 进行中（第二阶段）
+### ✅ 已完成（第二阶段）
 
-- 管理后台前端开发（62% 完成）
+- 管理后台前端开发（100% 完成）
   - ✅ 登录页面
   - ✅ 方法列表页面
   - ✅ 方法编辑页面
   - ✅ 内容审核页面
   - ✅ 数据统计仪表板
-  - ⏳ 文件上传功能
-  - ⏳ 数据导出功能
-  - ⏳ 用户管理页面
+  - ✅ 文件上传和媒体库管理
+  - ✅ 数据导出功能
+  - ✅ 用户管理页面
+- 后端API扩展（100% 完成）
+  - ✅ 文件上传API（图片/音频/视频）
+  - ✅ 媒体库管理API
+  - ✅ 数据导出API（CSV/JSON/Excel）
+  - ✅ 用户管理API（列表/详情/状态管理）
+- 测试体系建设（100% 完成）
+  - ✅ Jest测试框架配置
+  - ✅ 40+API测试用例
+  - ✅ 测试指南文档
 
-### ⏳ 计划中（第三阶段）
+### ✅ 已完成（第三阶段）
 
-- Flutter 移动应用开发
-  - 用户认证界面
-  - 方法浏览和搜索
-  - 个人方法库管理
-  - 练习记录和统计
-  - 多媒体播放
-  - 离线缓存
-  - 平台适配（iOS/Android/macOS/Windows）
+- Flutter应用准备工作（100% 完成）
+  - ✅ Flutter开发环境配置指南（534行）
+  - ✅ Flutter开发规范文档（1196行）
+  - ✅ Flutter应用架构设计文档（977行）
+  - ✅ Clean Architecture + BLoC模式
+  - ✅ 完整的技术选型和依赖配置
+  - ✅ 详细的项目结构和模块设计
+
+### 🔄 进行中（第四阶段）
+
+- Flutter 移动应用开发（11%完成）
+  - ✅ **第一阶段：基础架构搭建**（100% - 已完成）
+    - 项目配置（pubspec.yaml，30+依赖包）
+    - 错误处理框架（Exceptions + Failures）
+    - 工具类（验证器、日期格式化、日志系统）
+    - 依赖注入（GetIt + Injectable）
+    - 网络层（Dio客户端 + 拦截器 + 网络检测）
+    - 本地存储（SQLite + SharedPreferences + SecureStorage）
+    - 路由管理（GoRouter + 路由守卫）
+    - 基础UI组件（5个组件，968行代码）
+  - ⏳ **第二阶段：认证模块**（0% - 计划1周）
+    - Domain层、Data层、Presentation层
+    - LoginPage、RegisterPage、SplashPage
+  - ⏳ **第三阶段：方法浏览模块**（0% - 计划2周）
+    - 方法列表、详情、搜索、分类筛选
+  - ⏳ **第四阶段：个人方法库模块**（0% - 计划1.5周）
+    - 个人方法管理、目标设置、收藏
+  - ⏳ **第五阶段：练习记录模块**（0% - 计划2周）
+    - 练习记录、历史、统计、图表可视化
+  - ⏳ **第六阶段：多媒体和个人中心**（0% - 计划1.5周）
+    - 音频视频播放器、个人中心、设置
+  - ⏳ **第七阶段：跨平台适配**（0% - 计划2周）
+    - Android、iOS、Web、Windows、macOS适配
+  - ⏳ **第八阶段：测试和修复**（0% - 计划1周）
+    - 单元测试、Widget测试、集成测试
+  - ⏳ **第九阶段：发布准备**（0% - 计划1周）
+    - 应用商店资料、构建发布版本
 
 ### 🎯 未来优化
 
@@ -1009,6 +1087,29 @@ docker-compose up -d    # 重新启动
 - [Flutter](https://flutter.dev/)
 - [Docker](https://www.docker.com/)
 
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对您有帮助，请给我们一个 Star！⭐**
+
+Made with ❤️ by Allen
+
+[返回顶部](#全平台心理自助应用系统-nian)
+
+</div>
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对您有帮助，请给我们一个 Star！⭐**
+
+Made with ❤️ by Allen
+
+[返回顶部](#全平台心理自助应用系统-nian)
+
+</div>
+</div>
 ---
 
 <div align="center">

@@ -7,12 +7,18 @@ import {
   CheckCircleOutlined,
   UserOutlined,
   LogoutOutlined,
+  CloudUploadOutlined,
+  ExportOutlined,
+  TeamOutlined,
 } from '@ant-design/icons'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import MethodList from './pages/MethodList'
 import MethodEdit from './pages/MethodEdit'
 import MethodApproval from './pages/MethodApproval'
+import MediaLibrary from './pages/MediaLibrary'
+import DataExport from './pages/DataExport'
+import UserManagement from './pages/UserManagement'
 import './App.css'
 
 const { Header, Sider, Content } = Layout
@@ -57,6 +63,24 @@ const App: React.FC = () => {
       icon: <CheckCircleOutlined />,
       label: '内容审核',
       onClick: () => navigate('/approval'),
+    },
+    {
+      key: '/media',
+      icon: <CloudUploadOutlined />,
+      label: '媒体库',
+      onClick: () => navigate('/media'),
+    },
+    {
+      key: '/export',
+      icon: <ExportOutlined />,
+      label: '数据导出',
+      onClick: () => navigate('/export'),
+    },
+    {
+      key: '/users',
+      icon: <TeamOutlined />,
+      label: '用户管理',
+      onClick: () => navigate('/users'),
     },
   ]
 
@@ -115,6 +139,36 @@ const App: React.FC = () => {
             <Route path="/methods/new" element={<MethodEdit />} />
             <Route path="/methods/edit/:id" element={<MethodEdit />} />
             <Route path="/approval" element={<MethodApproval />} />
+            <Route path="/media" element={<MediaLibrary />} />
+            <Route path="/export" element={<DataExport />} />
+            <Route path="/users" element={<UserManagement />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Content>
+      </Layout>
+    </Layout>
+  )
+}
+
+export default App
+        <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar icon={<UserOutlined />} />
+              <span>{adminInfo?.username || '管理员'}</span>
+            </div>
+          </Dropdown>
+        </Header>
+        <Content style={{ margin: '24px', background: '#fff', padding: 24, minHeight: 280 }}>
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/methods" element={<MethodList />} />
+            <Route path="/methods/new" element={<MethodEdit />} />
+            <Route path="/methods/edit/:id" element={<MethodEdit />} />
+            <Route path="/approval" element={<MethodApproval />} />
+            <Route path="/media" element={<MediaLibrary />} />
+            <Route path="/export" element={<DataExport />} />
+            <Route path="/users" element={<UserManagement />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Content>

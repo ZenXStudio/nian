@@ -465,3 +465,963 @@ export const getMethodStatistics = async (req: AuthRequest, res: Response) => {
     },
   });
 };
+
+// ============= 文件上传和媒体管理 =============
+
+// 上传文件
+export const uploadFile = async (req: AuthRequest, res: Response) => {
+  const adminId = req.admin?.id;
+  const file = req.file;
+
+  if (!adminId) {
+    throw new AppError(401, 'AUTH_FAILED', 'Not authenticated');
+  }
+
+  if (!file) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
+  }
+
+  // 获取文件类型
+  let fileType: string;
+  if (file.mimetype.startsWith('image/')) {
+    fileType = 'image';
+  } else if (file.mimetype.startsWith('audio/')) {
+    fileType = 'audio';
+  } else if (file.mimetype.startsWith('video/')) {
+    fileType = 'video';
+  } else {
+    throw new AppError(400, 'INVALID_FILE_TYPE', 'Invalid file type');
+  }
+
+  // 生成URL
+  const url = `/uploads/${file.filename}`;
+
+  // 保存到数据库
+  const result = await pool.query(
+    `INSERT INTO media_files 
+     (filename, original_name, file_type, mime_type, file_size, file_path, url, uploaded_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING *`,
+    [file.filename, file.originalname, fileType, file.mimetype, file.size, file.path, url, adminId]
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'File uploaded successfully',
+    data: result.rows[0],
+  });
+};
+
+// 获取媒体文件列表
+export const getMediaFiles = async (req: AuthRequest, res: Response) => {
+  const {
+    type,
+    search,
+    page = 1,
+    pageSize = 20,
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (type && type !== 'all') {
+    conditions.push(`file_type = $${paramIndex}`);
+    params.push(type);
+    paramIndex++;
+  }
+
+  if (search) {
+    conditions.push(`(filename ILIKE $${paramIndex} OR original_name ILIKE $${paramIndex})`);
+    params.push(`%${search}%`);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM media_files ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT m.*, a.username as uploaded_by_name
+     FROM media_files m
+     LEFT JOIN admins a ON m.uploaded_by = a.id
+     ${whereClause}
+     ORDER BY m.created_at DESC
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};
+
+// 删除媒体文件
+export const deleteMediaFile = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  // 查询文件信息
+  const fileResult = await pool.query(
+    'SELECT * FROM media_files WHERE id = $1',
+    [id]
+  );
+
+  if (fileResult.rows.length === 0) {
+    throw new AppError(404, 'NOT_FOUND', 'Media file not found');
+  }
+
+  const file = fileResult.rows[0];
+
+  // 删除数据库记录
+  await pool.query('DELETE FROM media_files WHERE id = $1', [id]);
+
+  // 删除物理文件
+  const fs = require('fs');
+  if (fs.existsSync(file.file_path)) {
+    fs.unlinkSync(file.file_path);
+  }
+
+  res.json({
+    success: true,
+    message: 'Media file deleted successfully',
+  });
+};
+
+// ============= 数据导出 =============
+
+// 导出用户数据
+export const exportUsers = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', startDate, endDate, status } = req.query;
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (startDate) {
+    conditions.push(`created_at >= $${paramIndex}`);
+    params.push(startDate);
+    paramIndex++;
+  }
+
+  if (endDate) {
+    conditions.push(`created_at <= $${paramIndex}`);
+    params.push(endDate);
+    paramIndex++;
+  }
+
+  if (status === 'active') {
+    conditions.push('is_active = true');
+  } else if (status === 'inactive') {
+    conditions.push('is_active = false');
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const result = await pool.query(
+    `SELECT id, email, nickname, created_at, last_login_at, is_active
+     FROM users
+     ${whereClause}
+     ORDER BY created_at DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else {
+    // CSV格式
+    const { exportUsersToCSV } = require('../utils/export');
+    const filePath = await exportUsersToCSV(result.rows);
+    res.download(filePath);
+  }
+};
+
+// 导出方法数据
+export const exportMethods = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', category, status } = req.query;
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (category) {
+    conditions.push(`category = $${paramIndex}`);
+    params.push(category);
+    paramIndex++;
+  }
+
+  if (status && status !== 'all') {
+    conditions.push(`status = $${paramIndex}`);
+    params.push(status);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const result = await pool.query(
+    `SELECT id, title, category, difficulty, duration_minutes, status, view_count, select_count, created_at
+     FROM methods
+     ${whereClause}
+     ORDER BY created_at DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else {
+    // CSV格式
+    const { exportMethodsToCSV } = require('../utils/export');
+    const filePath = await exportMethodsToCSV(result.rows);
+    res.download(filePath);
+  }
+};
+
+// 导出练习记录
+export const exportPractices = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', startDate, endDate, userId } = req.query;
+
+  if (!startDate || !endDate) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Start date and end date are required');
+  }
+
+  const conditions: string[] = ['practice_date >= $1', 'practice_date <= $2'];
+  const params: any[] = [startDate, endDate];
+  let paramIndex = 3;
+
+  if (userId) {
+    conditions.push(`pr.user_id = $${paramIndex}`);
+    params.push(userId);
+    paramIndex++;
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  const result = await pool.query(
+    `SELECT pr.id, u.email as user_email, m.title as method_title,
+            pr.practice_date, pr.duration_minutes, pr.mood_before, pr.mood_after, pr.notes
+     FROM practice_records pr
+     JOIN users u ON pr.user_id = u.id
+     JOIN methods m ON pr.method_id = m.id
+     ${whereClause}
+     ORDER BY pr.practice_date DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else if (format === 'excel') {
+    // Excel格式
+    const { exportPracticesToExcel } = require('../utils/export');
+    const filePath = await exportPracticesToExcel(result.rows);
+    res.download(filePath);
+  } else {
+    // CSV格式
+    const { exportPracticesToExcel } = require('../utils/export');
+    const filePath = await exportPracticesToExcel(result.rows);
+    res.download(filePath);
+  }
+};
+
+// ============= 用户管理 =============
+
+// 获取用户列表
+export const getUsers = async (req: AuthRequest, res: Response) => {
+  const {
+    search,
+    status,
+    page = 1,
+    pageSize = 20,
+    sortBy = 'created_at',
+    sortOrder = 'desc',
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (search) {
+    conditions.push(`(email ILIKE $${paramIndex} OR nickname ILIKE $${paramIndex})`);
+    params.push(`%${search}%`);
+    paramIndex++;
+  }
+
+  if (status === 'active') {
+    conditions.push('u.is_active = true');
+  } else if (status === 'inactive') {
+    conditions.push('u.is_active = false');
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const orderClause = `ORDER BY u.${sortBy} ${sortOrder.toUpperCase()}`;
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM users u ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT u.id, u.email, u.nickname, u.avatar_url, u.created_at, u.last_login_at, u.is_active,
+            COUNT(DISTINCT um.id) as method_count,
+            COUNT(DISTINCT pr.id) as practice_count
+     FROM users u
+     LEFT JOIN user_methods um ON u.id = um.user_id
+     LEFT JOIN practice_records pr ON u.id = pr.user_id
+     ${whereClause}
+     GROUP BY u.id
+     ${orderClause}
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};
+
+// 获取用户详情
+export const getUserDetail = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  const result = await pool.query(
+    `SELECT u.id, u.email, u.nickname, u.avatar_url, u.created_at, u.last_login_at, u.is_active,
+            COUNT(DISTINCT um.id) as method_count,
+            COUNT(DISTINCT pr.id) as practice_count,
+            COALESCE(SUM(pr.duration_minutes), 0) as total_practice_duration,
+            COALESCE(AVG(pr.mood_after - pr.mood_before), 0) as avg_mood_improvement
+     FROM users u
+     LEFT JOIN user_methods um ON u.id = um.user_id
+     LEFT JOIN practice_records pr ON u.id = pr.user_id
+     WHERE u.id = $1
+     GROUP BY u.id`,
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new AppError(404, 'NOT_FOUND', 'User not found');
+  }
+
+  res.json({
+    success: true,
+    data: result.rows[0],
+  });
+};
+
+// 更新用户状态
+export const updateUserStatus = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+
+  if (is_active === undefined) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'is_active is required');
+  }
+
+  await pool.query(
+    'UPDATE users SET is_active = $1 WHERE id = $2',
+    [is_active, id]
+  );
+
+  res.json({
+    success: true,
+    message: 'User status updated successfully',
+  });
+};
+
+// 获取用户的方法库
+export const getUserMethods = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  const result = await pool.query(
+    `SELECT um.*, m.title as method_name, m.category, m.difficulty,
+            COUNT(pr.id) as practice_count
+     FROM user_methods um
+     JOIN methods m ON um.method_id = m.id
+     LEFT JOIN practice_records pr ON um.user_id = pr.user_id AND um.method_id = pr.method_id
+     WHERE um.user_id = $1
+     GROUP BY um.id, m.title, m.category, m.difficulty
+     ORDER BY um.selected_at DESC`,
+    [id]
+  );
+
+  res.json({
+    success: true,
+    data: result.rows,
+  });
+};
+
+// 获取用户的练习记录
+export const getUserPractices = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const {
+    page = 1,
+    pageSize = 20,
+    startDate,
+    endDate,
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = ['pr.user_id = $1'];
+  const params: any[] = [id];
+  let paramIndex = 2;
+
+  if (startDate) {
+    conditions.push(`pr.practice_date >= $${paramIndex}`);
+    params.push(startDate);
+    paramIndex++;
+  }
+
+  if (endDate) {
+    conditions.push(`pr.practice_date <= $${paramIndex}`);
+    params.push(endDate);
+    paramIndex++;
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM practice_records pr ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT pr.*, m.title as method_name
+     FROM practice_records pr
+     JOIN methods m ON pr.method_id = m.id
+     ${whereClause}
+     ORDER BY pr.practice_date DESC
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};
+
+// ============= 文件上传和媒体管理 =============
+
+// 上传文件
+export const uploadFile = async (req: AuthRequest, res: Response) => {
+  const adminId = req.admin?.id;
+  const file = req.file;
+
+  if (!adminId) {
+    throw new AppError(401, 'AUTH_FAILED', 'Not authenticated');
+  }
+
+  if (!file) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'No file uploaded');
+  }
+
+  // 获取文件类型
+  let fileType: string;
+  if (file.mimetype.startsWith('image/')) {
+    fileType = 'image';
+  } else if (file.mimetype.startsWith('audio/')) {
+    fileType = 'audio';
+  } else if (file.mimetype.startsWith('video/')) {
+    fileType = 'video';
+  } else {
+    throw new AppError(400, 'INVALID_FILE_TYPE', 'Invalid file type');
+  }
+
+  // 生成URL
+  const url = `/uploads/${file.filename}`;
+
+  // 保存到数据库
+  const result = await pool.query(
+    `INSERT INTO media_files 
+     (filename, original_name, file_type, mime_type, file_size, file_path, url, uploaded_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING *`,
+    [file.filename, file.originalname, fileType, file.mimetype, file.size, file.path, url, adminId]
+  );
+
+  res.status(201).json({
+    success: true,
+    message: 'File uploaded successfully',
+    data: result.rows[0],
+  });
+};
+
+// 获取媒体文件列表
+export const getMediaFiles = async (req: AuthRequest, res: Response) => {
+  const {
+    type,
+    search,
+    page = 1,
+    pageSize = 20,
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (type && type !== 'all') {
+    conditions.push(`file_type = $${paramIndex}`);
+    params.push(type);
+    paramIndex++;
+  }
+
+  if (search) {
+    conditions.push(`(filename ILIKE $${paramIndex} OR original_name ILIKE $${paramIndex})`);
+    params.push(`%${search}%`);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM media_files ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT m.*, a.username as uploaded_by_name
+     FROM media_files m
+     LEFT JOIN admins a ON m.uploaded_by = a.id
+     ${whereClause}
+     ORDER BY m.created_at DESC
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};
+
+// 删除媒体文件
+export const deleteMediaFile = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  // 查询文件信息
+  const fileResult = await pool.query(
+    'SELECT * FROM media_files WHERE id = $1',
+    [id]
+  );
+
+  if (fileResult.rows.length === 0) {
+    throw new AppError(404, 'NOT_FOUND', 'Media file not found');
+  }
+
+  const file = fileResult.rows[0];
+
+  // 删除数据库记录
+  await pool.query('DELETE FROM media_files WHERE id = $1', [id]);
+
+  // 删除物理文件
+  const fs = require('fs');
+  if (fs.existsSync(file.file_path)) {
+    fs.unlinkSync(file.file_path);
+  }
+
+  res.json({
+    success: true,
+    message: 'Media file deleted successfully',
+  });
+};
+
+// ============= 数据导出 =============
+
+// 导出用户数据
+export const exportUsers = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', startDate, endDate, status } = req.query;
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (startDate) {
+    conditions.push(`created_at >= $${paramIndex}`);
+    params.push(startDate);
+    paramIndex++;
+  }
+
+  if (endDate) {
+    conditions.push(`created_at <= $${paramIndex}`);
+    params.push(endDate);
+    paramIndex++;
+  }
+
+  if (status === 'active') {
+    conditions.push('is_active = true');
+  } else if (status === 'inactive') {
+    conditions.push('is_active = false');
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const result = await pool.query(
+    `SELECT id, email, nickname, created_at, last_login_at, is_active
+     FROM users
+     ${whereClause}
+     ORDER BY created_at DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else {
+    // CSV格式
+    const { exportUsersToCSV } = require('../utils/export');
+    const filePath = await exportUsersToCSV(result.rows);
+    res.download(filePath);
+  }
+};
+
+// 导出方法数据
+export const exportMethods = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', category, status } = req.query;
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (category) {
+    conditions.push(`category = $${paramIndex}`);
+    params.push(category);
+    paramIndex++;
+  }
+
+  if (status && status !== 'all') {
+    conditions.push(`status = $${paramIndex}`);
+    params.push(status);
+    paramIndex++;
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const result = await pool.query(
+    `SELECT id, title, category, difficulty, duration_minutes, status, view_count, select_count, created_at
+     FROM methods
+     ${whereClause}
+     ORDER BY created_at DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else {
+    // CSV格式
+    const { exportMethodsToCSV } = require('../utils/export');
+    const filePath = await exportMethodsToCSV(result.rows);
+    res.download(filePath);
+  }
+};
+
+// 导出练习记录
+export const exportPractices = async (req: AuthRequest, res: Response) => {
+  const { format = 'csv', startDate, endDate, userId } = req.query;
+
+  if (!startDate || !endDate) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Start date and end date are required');
+  }
+
+  const conditions: string[] = ['practice_date >= $1', 'practice_date <= $2'];
+  const params: any[] = [startDate, endDate];
+  let paramIndex = 3;
+
+  if (userId) {
+    conditions.push(`pr.user_id = $${paramIndex}`);
+    params.push(userId);
+    paramIndex++;
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  const result = await pool.query(
+    `SELECT pr.id, u.email as user_email, m.title as method_title,
+            pr.practice_date, pr.duration_minutes, pr.mood_before, pr.mood_after, pr.notes
+     FROM practice_records pr
+     JOIN users u ON pr.user_id = u.id
+     JOIN methods m ON pr.method_id = m.id
+     ${whereClause}
+     ORDER BY pr.practice_date DESC`,
+    params
+  );
+
+  if (format === 'json') {
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } else if (format === 'excel') {
+    // Excel格式
+    const { exportPracticesToExcel } = require('../utils/export');
+    const filePath = await exportPracticesToExcel(result.rows);
+    res.download(filePath);
+  } else {
+    // CSV格式
+    const { exportPracticesToExcel } = require('../utils/export');
+    const filePath = await exportPracticesToExcel(result.rows);
+    res.download(filePath);
+  }
+};
+
+// ============= 用户管理 =============
+
+// 获取用户列表
+export const getUsers = async (req: AuthRequest, res: Response) => {
+  const {
+    search,
+    status,
+    page = 1,
+    pageSize = 20,
+    sortBy = 'created_at',
+    sortOrder = 'desc',
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  if (search) {
+    conditions.push(`(email ILIKE $${paramIndex} OR nickname ILIKE $${paramIndex})`);
+    params.push(`%${search}%`);
+    paramIndex++;
+  }
+
+  if (status === 'active') {
+    conditions.push('u.is_active = true');
+  } else if (status === 'inactive') {
+    conditions.push('u.is_active = false');
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const orderClause = `ORDER BY u.${sortBy} ${sortOrder.toUpperCase()}`;
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM users u ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT u.id, u.email, u.nickname, u.avatar_url, u.created_at, u.last_login_at, u.is_active,
+            COUNT(DISTINCT um.id) as method_count,
+            COUNT(DISTINCT pr.id) as practice_count
+     FROM users u
+     LEFT JOIN user_methods um ON u.id = um.user_id
+     LEFT JOIN practice_records pr ON u.id = pr.user_id
+     ${whereClause}
+     GROUP BY u.id
+     ${orderClause}
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};
+
+// 获取用户详情
+export const getUserDetail = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  const result = await pool.query(
+    `SELECT u.id, u.email, u.nickname, u.avatar_url, u.created_at, u.last_login_at, u.is_active,
+            COUNT(DISTINCT um.id) as method_count,
+            COUNT(DISTINCT pr.id) as practice_count,
+            COALESCE(SUM(pr.duration_minutes), 0) as total_practice_duration,
+            COALESCE(AVG(pr.mood_after - pr.mood_before), 0) as avg_mood_improvement
+     FROM users u
+     LEFT JOIN user_methods um ON u.id = um.user_id
+     LEFT JOIN practice_records pr ON u.id = pr.user_id
+     WHERE u.id = $1
+     GROUP BY u.id`,
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    throw new AppError(404, 'NOT_FOUND', 'User not found');
+  }
+
+  res.json({
+    success: true,
+    data: result.rows[0],
+  });
+};
+
+// 更新用户状态
+export const updateUserStatus = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+
+  if (is_active === undefined) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'is_active is required');
+  }
+
+  await pool.query(
+    'UPDATE users SET is_active = $1 WHERE id = $2',
+    [is_active, id]
+  );
+
+  res.json({
+    success: true,
+    message: 'User status updated successfully',
+  });
+};
+
+// 获取用户的方法库
+export const getUserMethods = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  const result = await pool.query(
+    `SELECT um.*, m.title as method_name, m.category, m.difficulty,
+            COUNT(pr.id) as practice_count
+     FROM user_methods um
+     JOIN methods m ON um.method_id = m.id
+     LEFT JOIN practice_records pr ON um.user_id = pr.user_id AND um.method_id = pr.method_id
+     WHERE um.user_id = $1
+     GROUP BY um.id, m.title, m.category, m.difficulty
+     ORDER BY um.selected_at DESC`,
+    [id]
+  );
+
+  res.json({
+    success: true,
+    data: result.rows,
+  });
+};
+
+// 获取用户的练习记录
+export const getUserPractices = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+  const {
+    page = 1,
+    pageSize = 20,
+    startDate,
+    endDate,
+  } = req.query;
+
+  const offset = (Number(page) - 1) * Number(pageSize);
+  const limit = Number(pageSize);
+
+  const conditions: string[] = ['pr.user_id = $1'];
+  const params: any[] = [id];
+  let paramIndex = 2;
+
+  if (startDate) {
+    conditions.push(`pr.practice_date >= $${paramIndex}`);
+    params.push(startDate);
+    paramIndex++;
+  }
+
+  if (endDate) {
+    conditions.push(`pr.practice_date <= $${paramIndex}`);
+    params.push(endDate);
+    paramIndex++;
+  }
+
+  const whereClause = `WHERE ${conditions.join(' AND ')}`;
+
+  // 查询总数
+  const countResult = await pool.query(
+    `SELECT COUNT(*) FROM practice_records pr ${whereClause}`,
+    params
+  );
+  const total = parseInt(countResult.rows[0].count);
+
+  // 查询数据
+  const result = await pool.query(
+    `SELECT pr.*, m.title as method_name
+     FROM practice_records pr
+     JOIN methods m ON pr.method_id = m.id
+     ${whereClause}
+     ORDER BY pr.practice_date DESC
+     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+    [...params, limit, offset]
+  );
+
+  res.json({
+    success: true,
+    data: {
+      items: result.rows,
+      total,
+      page: Number(page),
+      pageSize: Number(pageSize),
+      totalPages: Math.ceil(total / Number(pageSize)),
+    },
+  });
+};

@@ -10,8 +10,20 @@ import {
   rejectMethod,
   getUserStatistics,
   getMethodStatistics,
+  uploadFile,
+  getMediaFiles,
+  deleteMediaFile,
+  exportUsers,
+  exportMethods,
+  exportPractices,
+  getUsers,
+  getUserDetail,
+  updateUserStatus,
+  getUserMethods,
+  getUserPractices,
 } from '../controllers/admin.controller';
 import { authenticateAdmin } from '../middleware/auth';
+import { upload } from '../utils/upload';
 
 const router = Router();
 
@@ -35,5 +47,51 @@ router.post('/methods/:id/reject', rejectMethod);
 // 数据统计
 router.get('/statistics/users', getUserStatistics);
 router.get('/statistics/methods', getMethodStatistics);
+
+// 文件上传和媒体管理
+router.post('/upload', upload.single('file'), uploadFile);
+router.get('/media', getMediaFiles);
+router.delete('/media/:id', deleteMediaFile);
+
+// 数据导出
+router.get('/export/users', exportUsers);
+router.get('/export/methods', exportMethods);
+router.get('/export/practices', exportPractices);
+
+// 用户管理
+router.get('/users', getUsers);
+router.get('/users/:id', getUserDetail);
+router.put('/users/:id/status', updateUserStatus);
+router.get('/users/:id/methods', getUserMethods);
+router.get('/users/:id/practices', getUserPractices);
+
+export default router;
+router.delete('/methods/:id', deleteMethod);
+
+// 内容审核
+router.post('/methods/:id/submit', submitForReview);
+router.post('/methods/:id/approve', approveMethod);
+router.post('/methods/:id/reject', rejectMethod);
+
+// 数据统计
+router.get('/statistics/users', getUserStatistics);
+router.get('/statistics/methods', getMethodStatistics);
+
+// 文件上传和媒体管理
+router.post('/upload', upload.single('file'), uploadFile);
+router.get('/media', getMediaFiles);
+router.delete('/media/:id', deleteMediaFile);
+
+// 数据导出
+router.get('/export/users', exportUsers);
+router.get('/export/methods', exportMethods);
+router.get('/export/practices', exportPractices);
+
+// 用户管理
+router.get('/users', getUsers);
+router.get('/users/:id', getUserDetail);
+router.put('/users/:id/status', updateUserStatus);
+router.get('/users/:id/methods', getUserMethods);
+router.get('/users/:id/practices', getUserPractices);
 
 export default router;

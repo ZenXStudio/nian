@@ -122,6 +122,25 @@ CREATE INDEX idx_audit_logs_method_id ON audit_logs(method_id);
 CREATE INDEX idx_audit_logs_admin_id ON audit_logs(admin_id);
 CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 
+-- 媒体文件表
+CREATE TABLE IF NOT EXISTS media_files (
+    id SERIAL PRIMARY KEY,
+    filename VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    file_type VARCHAR(20) NOT NULL CHECK (file_type IN ('image', 'audio', 'video')),
+    mime_type VARCHAR(100) NOT NULL,
+    file_size BIGINT NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    uploaded_by INT REFERENCES admins(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_media_files_file_type ON media_files(file_type);
+CREATE INDEX idx_media_files_uploaded_by ON media_files(uploaded_by);
+CREATE INDEX idx_media_files_created_at ON media_files(created_at);
+
 -- 插入默认管理员账号 (密码: admin123456, bcrypt加密)
 -- 注意: 这是示例密码，生产环境必须修改
 INSERT INTO admins (username, password_hash, role, email) VALUES 
@@ -308,6 +327,25 @@ LEFT JOIN practice_records pr ON u.id = pr.user_id
 GROUP BY u.id, u.email;
 
 -- 创建视图: 方法热度统计
+CREATE OR REPLACE VIEW method_popularity AS
+SELECT 
+    m.id,
+    m.title,
+    m.category,
+    m.view_count,
+    m.select_count,
+    COUNT(DISTINCT um.user_id) AS unique_users,
+    COUNT(DISTINCT pr.id) AS total_practices,
+    COALESCE(AVG(pr.mood_after - pr.mood_before), 0) AS avg_effectiveness
+FROM methods m
+LEFT JOIN user_methods um ON m.id = um.method_id
+LEFT JOIN practice_records pr ON m.id = pr.method_id
+WHERE m.status = 'published'
+GROUP BY m.id, m.title, m.category, m.view_count, m.select_count
+ORDER BY m.select_count DESC;
+
+-- 完成
+SELECT 'Database initialization completed successfully!' AS status;
 CREATE OR REPLACE VIEW method_popularity AS
 SELECT 
     m.id,
