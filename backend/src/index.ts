@@ -82,4 +82,3 @@ process.on('SIGINT', async () => {
 
 // 启动
 startServer();
-startServer();

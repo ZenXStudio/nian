@@ -12,6 +12,10 @@ import 'package:mental_app/presentation/auth/pages/login_page.dart';
 import 'package:mental_app/presentation/auth/pages/register_page.dart';
 import 'package:mental_app/presentation/home/main_page.dart';
 import 'package:mental_app/presentation/methods/pages/method_detail_page.dart';
+import 'package:mental_app/presentation/methods/pages/method_search_page.dart';
+import 'package:mental_app/presentation/practice/pages/practice_record_create_page.dart';
+import 'package:mental_app/presentation/practice/pages/practice_stats_page.dart';
+import 'package:mental_app/presentation/profile/pages/change_password_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -61,19 +65,37 @@ class MyApp extends StatelessWidget {
               );
             }
           }
-          return null;
-        },
-      ),
-    );
-  }
-}
-            final methodId = settings.arguments as int?;
-            if (methodId != null) {
-              return MaterialPageRoute(
-                builder: (context) => MethodDetailPage(methodId: methodId),
-              );
-            }
+
+          // 练习记录创建页面
+          if (settings.name == '/practice-create') {
+            final userMethodId = settings.arguments as int?;
+            return MaterialPageRoute(
+              builder: (context) =>
+                  PracticeRecordCreatePage(userMethodId: userMethodId),
+            );
           }
+
+          // 练习统计页面
+          if (settings.name == '/practice-stats') {
+            return MaterialPageRoute(
+              builder: (context) => const PracticeStatsPage(),
+            );
+          }
+
+          // 修改密码页面
+          if (settings.name == '/change-password') {
+            return MaterialPageRoute(
+              builder: (context) => const ChangePasswordPage(),
+            );
+          }
+
+          // 方法搜索页面
+          if (settings.name == '/method-search') {
+            return MaterialPageRoute(
+              builder: (context) => const MethodSearchPage(),
+            );
+          }
+
           return null;
         },
       ),

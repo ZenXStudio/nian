@@ -1,0 +1,11 @@
+# App Icons Directory
+
+Place app icon files here:
+- app_icon.png (1024x1024, main app icon)
+- app_icon_foreground.png (1024x1024, for Android adaptive icon)
+
+To generate platform-specific icons, run:
+```bash
+flutter pub get
+dart run flutter_launcher_icons
+```

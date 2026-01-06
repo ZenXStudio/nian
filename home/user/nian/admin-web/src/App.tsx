@@ -151,30 +151,3 @@ const App: React.FC = () => {
 }
 
 export default App
-        <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar icon={<UserOutlined />} />
-              <span>{adminInfo?.username || '管理员'}</span>
-            </div>
-          </Dropdown>
-        </Header>
-        <Content style={{ margin: '24px', background: '#fff', padding: 24, minHeight: 280 }}>
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/methods" element={<MethodList />} />
-            <Route path="/methods/new" element={<MethodEdit />} />
-            <Route path="/methods/edit/:id" element={<MethodEdit />} />
-            <Route path="/approval" element={<MethodApproval />} />
-            <Route path="/media" element={<MediaLibrary />} />
-            <Route path="/export" element={<DataExport />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Content>
-      </Layout>
-    </Layout>
-  )
-}
-
-export default App

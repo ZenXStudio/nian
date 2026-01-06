@@ -346,22 +346,3 @@ ORDER BY m.select_count DESC;
 
 -- 完成
 SELECT 'Database initialization completed successfully!' AS status;
-CREATE OR REPLACE VIEW method_popularity AS
-SELECT 
-    m.id,
-    m.title,
-    m.category,
-    m.view_count,
-    m.select_count,
-    COUNT(DISTINCT um.user_id) AS unique_users,
-    COUNT(DISTINCT pr.id) AS total_practices,
-    COALESCE(AVG(pr.mood_after - pr.mood_before), 0) AS avg_effectiveness
-FROM methods m
-LEFT JOIN user_methods um ON m.id = um.method_id
-LEFT JOIN practice_records pr ON m.id = pr.method_id
-WHERE m.status = 'published'
-GROUP BY m.id, m.title, m.category, m.view_count, m.select_count
-ORDER BY m.select_count DESC;
-
--- 完成
-SELECT 'Database initialization completed successfully!' AS status;

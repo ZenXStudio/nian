@@ -68,6 +68,93 @@ class _MethodDiscoverViewState extends State<_MethodDiscoverView> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  /// 显示通知列表
+  void _showNotifications(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  '通知',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+            // 通知列表
+            _buildNotificationItem(
+              '🌟 新方法推荐',
+              '深呼吸放松法适合缓解焦虑情绪',
+              '2小时前',
+            ),
+            _buildNotificationItem(
+              '📈 练习提醒',
+              '今天还没有开始练习哦，记得保持习惯',
+              '5小时前',
+            ),
+            _buildNotificationItem(
+              '🎉 成就解锁',
+              '恭喜你完成了连续7天练习！',
+              '昨天',
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 构建通知项
+  Widget _buildNotificationItem(String title, String content, String time) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Text(
+                time,
+                style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            content,
+            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,16 +165,13 @@ class _MethodDiscoverViewState extends State<_MethodDiscoverView> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: 跳转到搜索页面
-              // Navigator.pushNamed(context, '/method-search');
+              Navigator.pushNamed(context, '/method-search');
             },
           ),
           // 通知按钮
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // TODO: 显示通知
-            },
+            onPressed: () => _showNotifications(context),
           ),
         ],
       ),
@@ -233,7 +317,7 @@ class _MethodDiscoverViewState extends State<_MethodDiscoverView> {
               selected: isSelected,
               onSelected: (selected) {
                 setState(() {
-                  _selectedCategory = selected ? (category['id'] as String?) : null;
+                  _selectedCategory = selected ? category['id'] : null;
                 });
                 context
                     .read<MethodListBloc>()

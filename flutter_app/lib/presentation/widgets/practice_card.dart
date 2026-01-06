@@ -12,6 +12,10 @@ class PracticeCard extends StatelessWidget {
     this.onTap,
   });
 
+  String _formatTime(DateTime dateTime) {
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -33,14 +37,14 @@ class PracticeCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      '方法练习', // TODO: 显示方法名称
+                      record.method?.name ?? '方法练习',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                   ),
                   Text(
-                    _formatTime(record.practiceDate),
+                    _formatTime(record.practicedAt),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -90,7 +94,7 @@ class PracticeCard extends StatelessWidget {
               ),
 
               // 备注
-              if (record.note != null && record.note!.isNotEmpty) ...[
+              if (record.notes != null && record.notes!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -104,7 +108,7 @@ class PracticeCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          record.note!,
+                          record.notes!,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[700],
@@ -165,9 +169,5 @@ class PracticeCard extends StatelessWidget {
     if (score <= 3) return Colors.red;
     if (score <= 6) return Colors.orange;
     return Colors.green;
-  }
-
-  String _formatTime(DateTime dateTime) {
-    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

@@ -1,29 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mental_app/core/network/dio_client.dart';
+import 'package:mental_app/data/datasources/remote/practice_remote_data_source.dart';
+import 'package:mental_app/data/repositories/practice_repository_impl.dart';
+import 'package:mental_app/presentation/practice/bloc/practice_history_bloc.dart';
+import 'package:mental_app/presentation/practice/bloc/practice_history_event.dart';
+import 'package:mental_app/presentation/practice/bloc/practice_history_state.dart';
 import 'package:mental_app/presentation/widgets/empty_state.dart';
 import 'package:mental_app/presentation/widgets/loading_indicator.dart';
+import 'package:mental_app/presentation/widgets/error_widget.dart' as app_error;
+import 'package:mental_app/core/utils/date_formatter.dart';
 
 /// 练习历史列表页
-class PracticeHistoryPage extends StatefulWidget {
+class PracticeHistoryPage extends StatelessWidget {
   const PracticeHistoryPage({super.key});
 
   @override
-  State<PracticeHistoryPage> createState() => _PracticeHistoryPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final dioClient = DioClient();
+        final remoteDataSource = PracticeRemoteDataSource(dioClient);
+        final repository =
+            PracticeRepositoryImpl(remoteDataSource: remoteDataSource);
+
+        return PracticeHistoryBloc(practiceRepository: repository)
+          ..add(const LoadPracticeHistory(days: 7));
+      },
+      child: const _PracticeHistoryView(),
+    );
+  }
 }
 
-class _PracticeHistoryPageState extends State<PracticeHistoryPage>
+class _PracticeHistoryView extends StatefulWidget {
+  const _PracticeHistoryView();
+
+  @override
+  State<_PracticeHistoryView> createState() => _PracticeHistoryViewState();
+}
+
+class _PracticeHistoryViewState extends State<_PracticeHistoryView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_onTabChanged);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      int days;
+      switch (_tabController.index) {
+        case 0:
+          days = 7; // 本周
+          break;
+        case 1:
+          days = 30; // 本月
+          break;
+        case 2:
+          days = 365; // 全部
+          break;
+        default:
+          days = 7;
+      }
+      context
+          .read<PracticeHistoryBloc>()
+          .add(LoadPracticeHistory(days: days));
+    }
   }
 
   @override
@@ -70,28 +122,46 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
 
   /// 构建统计卡片
   Widget _buildStatisticsCard() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).primaryColor.withOpacity(0.8),
-            Theme.of(context).primaryColor,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem('总练习', '28次'),
-          _buildDivider(),
-          _buildStatItem('本周', '5次'),
-          _buildDivider(),
-          _buildStatItem('连续', '7天'),
-        ],
-      ),
+    return BlocBuilder<PracticeHistoryBloc, PracticeHistoryState>(
+      builder: (context, state) {
+        int totalCount = 0;
+        int weekCount = 0;
+        int consecutiveDays = 0;
+
+        if (state is PracticeHistoryLoaded) {
+          totalCount = state.records.length;
+          // 简化统计，实际应从 state获取
+          weekCount = state.records
+              .where((r) =>
+                  DateTime.now().difference(r.createdAt).inDays < 7)
+              .length;
+          consecutiveDays = _calculateConsecutiveDays(state.records);
+        }
+
+        return Container(
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).primaryColor.withOpacity(0.8),
+                Theme.of(context).primaryColor,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem('总练习', '${totalCount}次'),
+              _buildDivider(),
+              _buildStatItem('本周', '${weekCount}次'),
+              _buildDivider(),
+              _buildStatItem('连续', '${consecutiveDays}天'),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -130,50 +200,131 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
 
   /// 构建练习列表
   Widget _buildPracticeList() {
-    // TODO: 集成 BLoC 加载真实数据
-    
-    return RefreshIndicator(
-      onRefresh: _onRefresh,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: 10, // 临时显示10条记录
-        itemBuilder: (context, index) {
-          // 每3条记录显示一个日期分组
-          if (index % 3 == 0) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDateHeader(index),
-                _buildPracticeCard(index),
-              ],
+    return BlocBuilder<PracticeHistoryBloc, PracticeHistoryState>(
+      builder: (context, state) {
+        if (state is PracticeHistoryLoading) {
+          return const Center(child: LoadingIndicator());
+        }
+
+        if (state is PracticeHistoryError) {
+          return Center(
+            child: app_error.AppErrorWidget(
+              message: state.message,
+              onRetry: () {
+                context
+                    .read<PracticeHistoryBloc>()
+                    .add(const LoadPracticeHistory(days: 7));
+              },
+            ),
+          );
+        }
+
+        if (state is PracticeHistoryLoaded) {
+          if (state.records.isEmpty) {
+            return const EmptyState(
+              icon: Icons.history,
+              message: '还没有练习记录\n开始第一次练习吧',
             );
           }
-          return _buildPracticeCard(index);
-        },
-      ),
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              int days = 7;
+              switch (_tabController.index) {
+                case 0:
+                  days = 7;
+                  break;
+                case 1:
+                  days = 30;
+                  break;
+                case 2:
+                  days = 365;
+                  break;
+              }
+              context
+                  .read<PracticeHistoryBloc>()
+                  .add(LoadPracticeHistory(days: days));
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: state.records.length,
+              itemBuilder: (context, index) {
+                final record = state.records[index];
+                final showDateHeader = index == 0 ||
+                    !_isSameDay(state.records[index - 1].createdAt,
+                        record.createdAt);
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (showDateHeader)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16, bottom: 8),
+                        child: Text(
+                          DateFormatter.formatRelativeDate(record.createdAt),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ),
+                    _buildPracticeCard(record),
+                  ],
+                );
+              },
+            ),
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 
-  /// 构建日期分组头
-  Widget _buildDateHeader(int index) {
-    final dates = ['今天', '昨天', '2天前', '3天前'];
-    final dateIndex = index ~/ 3;
+  /// 计算连续练习天数
+  int _calculateConsecutiveDays(List<dynamic> records) {
+    if (records.isEmpty) return 0;
     
-    return Padding(
-      padding: const EdgeInsets.only(top: 16, bottom: 8),
-      child: Text(
-        dates[dateIndex % dates.length],
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.grey[700],
-        ),
-      ),
-    );
+    // 获取所有练习日期（去重）
+    final dates = records
+        .map((r) => DateTime(r.createdAt.year, r.createdAt.month, r.createdAt.day))
+        .toSet()
+        .toList();
+    dates.sort((a, b) => b.compareTo(a)); // 按日期降序
+    
+    // 检查从今天开始的连续天数
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    
+    int consecutiveDays = 0;
+    DateTime checkDate = todayDate;
+    
+    for (final date in dates) {
+      if (date.isAtSameMomentAs(checkDate) ||
+          checkDate.difference(date).inDays == 0) {
+        consecutiveDays++;
+        checkDate = checkDate.subtract(const Duration(days: 1));
+      } else if (checkDate.difference(date).inDays == 1) {
+        // 今天没有练习但昨天有
+        consecutiveDays++;
+        checkDate = date.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+    
+    return consecutiveDays;
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   /// 构建练习卡片
-  Widget _buildPracticeCard(int index) {
+  Widget _buildPracticeCard(dynamic record) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -181,7 +332,7 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
       ),
       child: InkWell(
         onTap: () {
-          // TODO: 查看练习详情
+          // 查看练习详情
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -195,14 +346,14 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
                 children: [
                   Expanded(
                     child: Text(
-                      '深呼吸练习',
+                      record.methodName ?? '练习记录',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ),
                   Text(
-                    '14:30',
+                    DateFormatter.formatTime(record.createdAt),
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -210,16 +361,15 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
                   ),
                 ],
               ),
-              
               const SizedBox(height: 12),
-              
+
               // 练习时长
               Row(
                 children: [
                   Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 4),
                   Text(
-                    '练习时长: 10分钟',
+                    '练习时长: ${record.durationMinutes}分钟',
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
@@ -227,24 +377,25 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
                   ),
                 ],
               ),
-              
               const SizedBox(height: 12),
-              
+
               // 心理状态评分
               Row(
                 children: [
                   Expanded(
-                    child: _buildMoodIndicator('练习前', 4, Colors.orange),
+                    child: _buildMoodIndicator(
+                        '练习前', record.moodBefore, Colors.orange),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _buildMoodIndicator('练习后', 8, Colors.green),
+                    child: _buildMoodIndicator(
+                        '练习后', record.moodAfter, Colors.green),
                   ),
                 ],
               ),
-              
+
               // 备注（如果有）
-              if (index % 4 == 0) ...[
+              if (record.notes != null && record.notes!.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
                   padding: const EdgeInsets.all(8),
@@ -258,7 +409,7 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          '今天感觉好多了，会继续坚持练习',
+                          record.notes!,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[700],
@@ -312,13 +463,7 @@ class _PracticeHistoryPageState extends State<PracticeHistoryPage>
             ),
           ],
         ),
-      ],
+      ),
     );
-  }
-
-  /// 下拉刷新
-  Future<void> _onRefresh() async {
-    // TODO: 刷新数据
-    await Future.delayed(const Duration(seconds: 1));
   }
 }
