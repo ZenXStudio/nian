@@ -2,16 +2,31 @@
 
 全平台心理自助应用的移动端实现，支持 Android、iOS、Web、macOS 和 Windows。
 
+## 项目状态
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Completion](https://img.shields.io/badge/完成度-95%25-success.svg)
+
+**已完成**: 12个功能页面，约7,700行Dart代码
+
 ## 功能特性
 
+### 已完成 ✅
 - ✅ 用户认证（注册、登录、自动登录）
 - ✅ JWT Token 安全管理
+- ✅ 心理方法浏览和搜索
+- ✅ 方法详情查看
+- ✅ 个性化方法库管理（添加、收藏、目标设置）
+- ✅ 练习记录与追踪
+- ✅ 练习统计与趋势分析
+- ✅ 个人中心（主题、通知、隐私政策）
 - ✅ Material Design 风格
 - ✅ 深色模式支持
-- ⏳ 心理方法浏览和搜索（架构已就绪）
-- ⏳ 个性化方法库管理（架构已就绪）
-- ⏳ 练习记录与追踪（架构已就绪）
-- ⏳ 练习统计与趋势分析（架构已就绪）
+
+### 待完成 ⏳
+- ⏳ App图标替换
+- ⏳ 真机测试
+- ⏳ 应用商店发布
 
 ## 技术栈
 
@@ -22,35 +37,6 @@
 - **架构**: Clean Architecture + Repository Pattern
 - **函数式编程**: dartz (Either模式)
 
-## 项目架构
-
-项目采用 Clean Architecture 分层架构：
-
-```
-lib/
-├── domain/                    # 领域层（业务逻辑）
-│   ├── entities/             # 业务实体
-│   └── repositories/         # Repository接口
-├── data/                      # 数据层（数据访问）
-│   ├── models/               # 数据模型（JSON序列化）
-│   ├── repositories/         # Repository实现
-│   └── datasources/          # 数据源（远程API、本地数据库）
-├── presentation/              # 表现层（UI）
-│   ├── auth/                 # 认证模块
-│   │   ├── bloc/            # 状态管理
-│   │   └── pages/           # 页面
-│   ├── home/                 # 首页
-│   ├── methods/              # 方法模块
-│   ├── practice/             # 练习模块
-│   └── widgets/              # 共享组件
-├── core/                      # 核心功能
-│   ├── error/                # 错误处理
-│   ├── network/              # 网络客户端
-│   ├── storage/              # 本地存储
-│   └── utils/                # 工具类
-└── config/                    # 配置文件
-```
-
 ## 快速开始
 
 ### 前置要求
@@ -58,198 +44,135 @@ lib/
 - Flutter SDK 3.0.0+
 - Dart 3.0.0+
 - 后端 API 服务（默认 http://localhost:3000/api）
+- **Windows用户**: 需开启开发者模式
+
+### Windows 开发者模式
+
+```powershell
+# 打开设置
+start ms-settings:developers
+# 开启"开发者模式"开关
+```
 
 ### 安装步骤
 
-1. **克隆仓库**
-
 ```bash
+# 1. 进入目录
 cd flutter_app
-```
 
-2. **安装依赖**
-
-```bash
+# 2. 安装依赖
 flutter pub get
+
+# 3. 添加平台支持（如需要）
+flutter create --platforms=windows .
+flutter create --platforms=android .
+
+# 4. 运行应用
+flutter run -d windows   # Windows
+flutter run -d chrome    # Web
+flutter run              # Android（连接设备后）
 ```
 
-3. **配置 API 地址**
+### 配置 API 地址
 
 编辑 `lib/config/api_constants.dart`：
 
 ```dart
 class ApiConstants {
-  static const String baseUrl = 'http://localhost:3000/api';  // 修改为你的API地址
+  static const String baseUrl = 'http://localhost:3000/api';
 }
 ```
 
-4. **运行应用**
-
-```bash
-# Android
-flutter run -d android
-
-# iOS (仅macOS)
-flutter run -d ios
-
-# Web
-flutter run -d chrome
-
-# macOS桌面
-flutter run -d macos
-
-# Windows桌面
-flutter run -d windows
-```
-
-## 核心功能说明
-
-### 1. 认证模块
-
-- **登录**: 用户邮箱+密码登录
-- **注册**: 新用户注册
-- **自动登录**: 基于JWT Token的持久化登录
-- **安全存储**: Token加密存储
-
-### 2. 数据流架构
+## 项目架构
 
 ```
-UI (Widget) → BLoC → Use Case → Repository → Data Source → API/Database
-          ← State ← Either<Failure, Data> ←          ←            ←
+lib/
+├── config/                    # 配置文件
+│   ├── api_constants.dart    # API配置
+│   ├── routes.dart           # 路由配置
+│   └── theme.dart            # 主题配置
+├── core/                      # 核心功能
+│   ├── di/                   # 依赖注入
+│   ├── error/                # 错误处理
+│   ├── network/              # 网络客户端
+│   ├── storage/              # 本地存储
+│   └── utils/                # 工具类
+├── data/                      # 数据层
+│   ├── api/                  # API客户端
+│   ├── datasources/          # 数据源
+│   ├── models/               # 数据模型
+│   └── repositories/         # Repository实现
+├── domain/                    # 领域层
+│   ├── entities/             # 业务实体
+│   └── repositories/         # Repository接口
+└── presentation/              # 表现层（12个功能页面）
+    ├── auth/                 # 认证模块
+    │   ├── bloc/            # 状态管理
+    │   └── pages/           # 登录、注册、启动页
+    ├── home/                 # 主页框架
+    ├── methods/              # 方法模块
+    │   ├── bloc/            # 方法列表/搜索BLoC
+    │   └── pages/           # 发现、详情、搜索页
+    ├── practice/             # 练习模块
+    │   ├── bloc/            # 练习BLoC
+    │   └── pages/           # 历史、统计页
+    ├── profile/              # 个人中心
+    │   ├── bloc/            # ProfileBLoC
+    │   └── pages/           # 个人中心页
+    ├── user_methods/         # 个人方法库
+    │   ├── bloc/            # 用户方法BLoC
+    │   └── pages/           # 方法库页
+    └── widgets/              # 共享组件
 ```
 
-### 3. 错误处理
+## 功能页面清单
 
-使用 Either<Failure, Data> 模式统一处理错误：
+| 页面 | 文件 | 功能 |
+|-----|------|------|
+| 启动页 | `splash_page.dart` | 自动登录检测 |
+| 登录页 | `login_page.dart` | 邮箱密码登录 |
+| 注册页 | `register_page.dart` | 新用户注册 |
+| 主页框架 | `main_page.dart` | 底部导航 |
+| 方法发现 | `method_discover_page.dart` | 首页内容、分类筛选 |
+| 方法详情 | `method_detail_page.dart` | 方法详情、添加到库 |
+| 方法搜索 | `method_search_page.dart` | 关键词搜索 |
+| 个人方法库 | `user_method_list_page.dart` | 收藏管理、目标设置 |
+| 练习历史 | `practice_history_page.dart` | 历史记录、筛选 |
+| 练习统计 | `practice_stats_page.dart` | 统计图表 |
+| 个人中心 | `profile_page.dart` | 设置、主题、隐私政策 |
 
-- **NetworkFailure**: 网络连接错误
-- **ServerFailure**: 服务器错误
-- **AuthenticationFailure**: 认证失败
-- **ValidationFailure**: 输入验证失败
-
-## 开发指南
-
-### 代码规范
-
-- 文件名：`snake_case`
-- 类名：`PascalCase`
-- 变量/方法：`camelCase`
-- 使用 `const` 构造函数优化性能
-- 遵循 `flutter_lints` 规范
-
-### 构建发布版本
+## 构建发布
 
 ```bash
 # Android APK
 flutter build apk --release
 
-# Android App Bundle (推荐)
+# Android App Bundle
 flutter build appbundle --release
-
-# iOS (仅macOS)
-flutter build ios --release
-
-# macOS
-flutter build macos --release
 
 # Windows
 flutter build windows --release
+
+# macOS（需Mac）
+flutter build macos --release
+
+# iOS（需Mac）
+flutter build ios --release
 ```
-
-## 项目状态
-
-### 已完成 ✅
-
-- Clean Architecture 架构搭建
-- 领域层实体（User、Method、PracticeRecord、PracticeStats）
-- 数据层模型与Repository实现
-- 认证BLoC与状态管理
-- 认证页面（Splash、Login、Register）
-- 首页框架
-- 基础UI组件
-- 核心工具类（网络客户端、错误处理、安全存储）
-
-### 进行中 🚧
-
-- 方法浏览功能（数据层已完成，UI待开发）
-- 个人方法库（数据层已完成，UI待开发）
-- 练习记录功能（数据层已完成，UI待开发）
-
-### 待开发 ⏳
-
-- 个人中心页面
-- 练习统计图表
-- 单元测试
-- 集成测试
-- 多语言支持
-
-## API集成
-
-应用需要配合后端API使用，主要API端点：
-
-- `POST /auth/login` - 用户登录
-- `POST /auth/register` - 用户注册
-- `GET /auth/me` - 获取当前用户信息
-- `GET /methods` - 获取方法列表
-- `GET /methods/:id` - 获取方法详情
-- `POST /practices` - 记录练习
-- `GET /practices` - 获取练习历史
-- `GET /practices/stats` - 获取练习统计
-
-## 依赖说明
-
-### 核心依赖
-
-- `flutter_bloc: ^8.1.3` - BLoC状态管理
-- `equatable: ^2.0.5` - 对象相等性比较
-- `dio: ^5.4.0` - HTTP客户端
-- `dartz: ^0.10.1` - 函数式编程（Either模式）
-
-### 存储
-
-- `flutter_secure_storage: ^9.0.0` - Token加密存储
-- `shared_preferences: ^2.2.2` - 用户偏好存储
-- `sqflite: ^2.3.2` - 本地数据库
-
-### 工具
-
-- `intl: ^0.18.1` - 国际化
-- `logger: ^2.0.2` - 日志工具
-
-## 注意事项
-
-1. **安全性**
-   - Token使用flutter_secure_storage加密存储
-   - 所有API请求自动携带JWT Token
-   - 401错误自动清除登录状态
-
-2. **性能优化**
-   - 使用const构造函数减少重建
-   - ListView.builder懒加载
-   - 图片缓存
-
-3. **跨平台适配**
-   - Material Design适配Android
-   - 自动适应不同平台UI风格
 
 ## 常见问题
 
+### Q: Windows构建失败提示需要符号链接支持？
+A: 开启Windows开发者模式：`start ms-settings:developers`
+
 ### Q: 如何修改API地址？
-A: 编辑 `lib/config/api_constants.dart` 文件中的 `baseUrl` 常量。
+A: 编辑 `lib/config/api_constants.dart` 中的 `baseUrl`
 
 ### Q: 登录后Token存储在哪里？
-A: Token使用 `flutter_secure_storage` 加密存储在设备的安全区域。
+A: 使用 `flutter_secure_storage` 加密存储在设备安全区域
 
-### Q: 如何清除缓存？
-A: 卸载应用或使用设备的应用设置清除应用数据。
-
-## 贡献指南
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+### Q: 编译时报重复类错误？
+A: 运行 `flutter clean` 后重新 `flutter pub get`
 
 ## 许可证
 
