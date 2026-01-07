@@ -104,15 +104,23 @@ flutter run -d windows  # 或 chrome, android
 - 练习历史、统计
 - 个人中心
 
-详见：[Flutter架构文档](FLUTTER_ARCHITECTURE.md)
+详见：[Flutter架构文档](docs/flutter/ARCHITECTURE.md)
 
 ## 文档索引
 
+详细文档请查看 [docs/README.md](docs/README.md)
+
+### 开发文档
 | 文档 | 说明 |
 |------|------|
-| [FLUTTER_SETUP_GUIDE.md](FLUTTER_SETUP_GUIDE.md) | Flutter环境配置 |
-| [FLUTTER_ARCHITECTURE.md](FLUTTER_ARCHITECTURE.md) | Flutter架构设计 |
-| [FLUTTER_DEVELOPMENT_GUIDE.md](FLUTTER_DEVELOPMENT_GUIDE.md) | Flutter开发规范 |
+| [docs/flutter/SETUP_GUIDE.md](docs/flutter/SETUP_GUIDE.md) | Flutter环境配置 |
+| [docs/flutter/ARCHITECTURE.md](docs/flutter/ARCHITECTURE.md) | Flutter架构设计 |
+| [docs/flutter/DEVELOPMENT_GUIDE.md](docs/flutter/DEVELOPMENT_GUIDE.md) | Flutter开发规范 |
+| [docs/backend/TEST_GUIDE.md](docs/backend/TEST_GUIDE.md) | 后端测试指南 |
+
+### 运维文档
+| 文档 | 说明 |
+|------|------|
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | 部署指南 |
 | [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | 实施状态 |
 
