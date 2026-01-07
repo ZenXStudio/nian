@@ -44,4 +44,10 @@ abstract class PracticeRepository {
     DateTime? startDate,
     DateTime? endDate,
   });
+
+  /// 获取练习统计数据（别名）
+  Future<Either<Failure, PracticeStats>> getPracticeStatistics({
+    DateTime? startDate,
+    DateTime? endDate,
+  });
 }

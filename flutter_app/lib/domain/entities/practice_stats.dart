@@ -31,6 +31,9 @@ class PracticeStats extends Equatable {
   double get averageDuration =>
       totalCount > 0 ? totalMinutes / totalCount : 0.0;
 
+  /// 平均改善（别名）
+  double get averageImprovement => averageMoodImprovement;
+
   @override
   List<Object?> get props => [
         totalCount,

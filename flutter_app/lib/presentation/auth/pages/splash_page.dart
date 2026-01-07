@@ -9,7 +9,7 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
           Navigator.of(context).pushReplacementNamed('/home');
@@ -17,30 +17,41 @@ class SplashPage extends StatelessWidget {
           Navigator.of(context).pushReplacementNamed('/login');
         }
       },
-      child: Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.self_improvement,
-                size: 100,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                '心理自助应用',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      builder: (context, state) {
+        // 如果已经是最终状态，主动导航
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (state is Authenticated) {
+            Navigator.of(context).pushReplacementNamed('/home');
+          } else if (state is Unauthenticated) {
+            Navigator.of(context).pushReplacementNamed('/login');
+          }
+        });
+        
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.self_improvement,
+                  size: 100,
+                  color: Theme.of(context).primaryColor,
                 ),
-              ),
-              const SizedBox(height: 48),
-              const CircularProgressIndicator(),
-            ],
+                const SizedBox(height: 24),
+                const Text(
+                  '心理自助应用',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 48),
+                const CircularProgressIndicator(),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

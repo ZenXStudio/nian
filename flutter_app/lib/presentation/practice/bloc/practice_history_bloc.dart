@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mental_app/domain/entities/practice_record.dart';
 import 'package:mental_app/domain/repositories/practice_repository.dart';
 import 'package:mental_app/presentation/practice/bloc/practice_history_event.dart';
 import 'package:mental_app/presentation/practice/bloc/practice_history_state.dart';

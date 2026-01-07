@@ -95,7 +95,7 @@ class UserMethodListBloc
 
     // 切换收藏状态
     final result = await userMethodRepository.updateUserMethod(
-      id: event.userMethodId,
+      userMethodId: event.userMethodId,
       isFavorite: !method.isFavorite,
     );
 
@@ -130,7 +130,7 @@ class UserMethodListBloc
     if (currentState is! UserMethodListLoaded) return;
 
     final result = await userMethodRepository.updateUserMethod(
-      id: event.userMethodId,
+      userMethodId: event.userMethodId,
       personalGoal: event.goal,
     );
 

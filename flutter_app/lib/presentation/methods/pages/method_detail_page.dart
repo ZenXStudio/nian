@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/core/network/dio_client.dart';
 import 'package:mental_app/data/datasources/remote/method_remote_data_source.dart';
 import 'package:mental_app/data/datasources/remote/user_method_remote_data_source.dart';
@@ -23,7 +24,8 @@ class MethodDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final dioClient = DioClient();
+        const secureStorage = FlutterSecureStorage();
+        final dioClient = DioClient(secureStorage);
         final methodDataSource = MethodRemoteDataSource(dioClient);
         final methodRepository = MethodRepositoryImpl(
           remoteDataSource: methodDataSource,

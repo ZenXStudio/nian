@@ -79,4 +79,12 @@ class PracticeRepositoryImpl implements PracticeRepository {
       return Left(UnknownFailure('获取练习统计失败: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Either<Failure, PracticeStats>> getPracticeStatistics({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    return getPracticeStats(startDate: startDate, endDate: endDate);
+  }
 }

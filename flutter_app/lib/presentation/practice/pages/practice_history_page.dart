@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/core/network/dio_client.dart';
 import 'package:mental_app/data/datasources/remote/practice_remote_data_source.dart';
 import 'package:mental_app/data/repositories/practice_repository_impl.dart';
@@ -19,13 +20,14 @@ class PracticeHistoryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final dioClient = DioClient();
+        const secureStorage = FlutterSecureStorage();
+        final dioClient = DioClient(secureStorage);
         final remoteDataSource = PracticeRemoteDataSource(dioClient);
         final repository =
             PracticeRepositoryImpl(remoteDataSource: remoteDataSource);
 
         return PracticeHistoryBloc(practiceRepository: repository)
-          ..add(const LoadPracticeHistory(days: 7));
+          ..add(const LoadPracticeHistory(timeRange: 'week'));
       },
       child: const _PracticeHistoryView(),
     );
@@ -58,23 +60,23 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
 
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
-      int days;
+      String timeRange;
       switch (_tabController.index) {
         case 0:
-          days = 7; // 本周
+          timeRange = 'week'; // 本周
           break;
         case 1:
-          days = 30; // 本月
+          timeRange = 'month'; // 本月
           break;
         case 2:
-          days = 365; // 全部
+          timeRange = 'all'; // 全部
           break;
         default:
-          days = 7;
+          timeRange = 'week';
       }
       context
           .read<PracticeHistoryBloc>()
-          .add(LoadPracticeHistory(days: days));
+          .add(LoadPracticeHistory(timeRange: timeRange));
     }
   }
 
@@ -213,7 +215,7 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
               onRetry: () {
                 context
                     .read<PracticeHistoryBloc>()
-                    .add(const LoadPracticeHistory(days: 7));
+                    .add(const LoadPracticeHistory(timeRange: 'week'));
               },
             ),
           );
@@ -229,21 +231,21 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
 
           return RefreshIndicator(
             onRefresh: () async {
-              int days = 7;
+              String timeRange = 'week';
               switch (_tabController.index) {
                 case 0:
-                  days = 7;
+                  timeRange = 'week';
                   break;
                 case 1:
-                  days = 30;
+                  timeRange = 'month';
                   break;
                 case 2:
-                  days = 365;
+                  timeRange = 'all';
                   break;
               }
               context
                   .read<PracticeHistoryBloc>()
-                  .add(LoadPracticeHistory(days: days));
+                  .add(LoadPracticeHistory(timeRange: timeRange));
             },
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -261,7 +263,7 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
                       Padding(
                         padding: const EdgeInsets.only(top: 16, bottom: 8),
                         child: Text(
-                          DateFormatter.formatRelativeDate(record.createdAt),
+                          DateFormatter.getRelativeTime(record.createdAt),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -463,7 +465,7 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
             ),
           ],
         ),
-      ),
-    )
+      ],
+    );
   }
 }

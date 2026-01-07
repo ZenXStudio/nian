@@ -38,4 +38,7 @@ abstract class UserMethodRepository {
   /// [userMethodId] 用户方法ID
   /// 返回 [void] 或 [Failure]
   Future<Either<Failure, void>> removeUserMethod(int userMethodId);
+
+  /// 删除用户方法（别名）
+  Future<Either<Failure, void>> deleteUserMethod(int userMethodId);
 }

@@ -42,4 +42,24 @@ abstract class AuthRepository {
   ///
   /// 返回 true 如果有有效的Token
   Future<bool> isLoggedIn();
+
+  /// 修改密码
+  ///
+  /// [旧密码] 旧密码
+  /// [新密码] 新密码
+  /// 返回 [void] 或 [Failure]
+  Future<Either<Failure, void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
+
+  /// 更新用户资料
+  ///
+  /// [nickname] 用户昵称（可选）
+  /// [avatarUrl] 头像URL（可选）
+  /// 返回 [User] 或 [Failure]
+  Future<Either<Failure, User>> updateProfile({
+    String? nickname,
+    String? avatarUrl,
+  });
 }

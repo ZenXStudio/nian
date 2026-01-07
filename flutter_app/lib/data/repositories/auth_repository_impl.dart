@@ -28,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final userJson = result['user'] as Map<String, dynamic>;
       
       // 保存Token
-      await secureStorage.saveToken(token);
+      await secureStorage.saveAuthToken(token);
       
       // 返回用户信息
       final user = UserModel.fromJson(userJson);
@@ -58,7 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final userJson = result['user'] as Map<String, dynamic>;
       
       // 保存Token
-      await secureStorage.saveToken(token);
+      await secureStorage.saveAuthToken(token);
       
       // 返回用户信息
       final user = UserModel.fromJson(userJson);
@@ -80,7 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.getCurrentUser();
       return Right(user);
     } on AuthenticationException catch (e) {
-      await secureStorage.deleteToken(); // Token无效，清除
+      await secureStorage.deleteAuthToken(); // Token无效，清除
       return Left(AuthenticationFailure(e.message));
     } on NetworkException catch (e) {
       return Left(NetworkFailure(e.message));
@@ -94,7 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> logout() async {
     try {
-      await secureStorage.deleteToken();
+      await secureStorage.deleteAuthToken();
       return const Right(null);
     } catch (e) {
       return Left(UnknownFailure('登出失败: ${e.toString()}'));
@@ -104,10 +104,53 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> isLoggedIn() async {
     try {
-      final token = await secureStorage.getToken();
+      final token = await secureStorage.getAuthToken();
       return token != null && token.isNotEmpty;
     } catch (e) {
       return false;
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await remoteDataSource.changePassword(oldPassword, newPassword);
+      return const Right(null);
+    } on AuthenticationException catch (e) {
+      return Left(AuthenticationFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } catch (e) {
+      return Left(UnknownFailure('修改密码失败: ${e.toString()}'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> updateProfile({
+    String? nickname,
+    String? avatarUrl,
+  }) async {
+    try {
+      final user = await remoteDataSource.updateProfile(
+        nickname: nickname,
+        avatarUrl: avatarUrl,
+      );
+      return Right(user);
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, statusCode: e.statusCode));
+    } catch (e) {
+      return Left(UnknownFailure('更新资料失败: ${e.toString()}'));
     }
   }
 }

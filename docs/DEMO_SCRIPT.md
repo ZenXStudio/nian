@@ -89,7 +89,7 @@ curl http://localhost:3000/health
 # 展示：注册新用户
 curl -X POST http://localhost:3000/api/auth/register `
   -H "Content-Type: application/json" `
-  -d '{\"email\":\"demo@example.com\",\"password\":\"demo123456\",\"nickname\":\"演示用户\"}'
+  -d '{"email":"demo@example.com","password":"demo123456","nickname":"演示用户"}'
 ```
 
 **预期输出**：

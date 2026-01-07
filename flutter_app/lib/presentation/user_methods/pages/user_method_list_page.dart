@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/core/network/dio_client.dart';
 import 'package:mental_app/data/datasources/remote/user_method_remote_data_source.dart';
 import 'package:mental_app/data/repositories/user_method_repository_impl.dart';
@@ -20,7 +21,8 @@ class UserMethodListPage extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         // 初始化依赖
-        final dioClient = DioClient();
+        const secureStorage = FlutterSecureStorage();
+        final dioClient = DioClient(secureStorage);
         final remoteDataSource = UserMethodRemoteDataSource(dioClient);
         final repository =
             UserMethodRepositoryImpl(remoteDataSource: remoteDataSource);
@@ -246,7 +248,7 @@ class _UserMethodListViewState extends State<_UserMethodListView> {
 
               // 个人目标
               if (userMethod.personalGoal != null &&
-                  userMethod.personalGoal!.isNotEmpty) ..[
+                  userMethod.personalGoal!.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(8),

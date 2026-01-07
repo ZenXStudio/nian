@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 class AppTextField extends StatefulWidget {
   final TextEditingController? controller;
   final String? label;
+  final String? labelText; // 别名
   final String? hint;
+  final String? hintText; // 别名
   final String? errorText;
   final bool obscureText;
   final TextInputType? keyboardType;
@@ -30,7 +32,9 @@ class AppTextField extends StatefulWidget {
     super.key,
     this.controller,
     this.label,
+    this.labelText,
     this.hint,
+    this.hintText,
     this.errorText,
     this.obscureText = false,
     this.keyboardType,
@@ -70,9 +74,9 @@ class _AppTextFieldState extends State<AppTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.label != null) ...[
+        if (widget.label != null || widget.labelText != null) ...[
           Text(
-            widget.label!,
+            widget.label ?? widget.labelText!,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w500,
             ),
@@ -95,7 +99,7 @@ class _AppTextFieldState extends State<AppTextField> {
           inputFormatters: widget.inputFormatters,
           autofocus: widget.autofocus,
           decoration: InputDecoration(
-            hintText: widget.hint,
+            hintText: widget.hint ?? widget.hintText,
             errorText: widget.errorText,
             prefixIcon: widget.prefixIcon != null
                 ? Icon(widget.prefixIcon)

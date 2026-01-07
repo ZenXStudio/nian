@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mental_app/core/utils/shared_prefs_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mental_app/domain/repositories/method_repository.dart';
 import 'package:mental_app/presentation/methods/bloc/method_search_event.dart';
 import 'package:mental_app/presentation/methods/bloc/method_search_state.dart';
@@ -82,7 +82,7 @@ class MethodSearchBloc extends Bloc<MethodSearchEvent, MethodSearchState> {
     AddToSearchHistory event,
     Emitter<MethodSearchState> emit,
   ) async {
-    final prefs = await SharedPrefsHelper.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     final history = await _loadSearchHistory();
 
     // 移除重复项
@@ -105,14 +105,14 @@ class MethodSearchBloc extends Bloc<MethodSearchEvent, MethodSearchState> {
     ClearSearchHistory event,
     Emitter<MethodSearchState> emit,
   ) async {
-    final prefs = await SharedPrefsHelper.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_searchHistoryKey);
     emit(const MethodSearchInitial(searchHistory: []));
   }
 
   /// 从SharedPreferences加载搜索历史
   Future<List<String>> _loadSearchHistory() async {
-    final prefs = await SharedPrefsHelper.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList(_searchHistoryKey) ?? [];
   }
 }

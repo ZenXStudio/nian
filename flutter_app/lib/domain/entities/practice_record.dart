@@ -47,6 +47,12 @@ class PracticeRecord extends Equatable {
   /// 心理状态改善程度
   int get moodImprovement => moodAfter - moodBefore;
 
+  /// 创建时间（别名）
+  DateTime get createdAt => practicedAt;
+
+  /// 练习日期（别名）
+  DateTime get practiceDate => practicedAt;
+
   @override
   List<Object?> get props => [
         id,

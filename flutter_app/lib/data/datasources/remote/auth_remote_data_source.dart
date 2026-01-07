@@ -53,6 +53,38 @@ class AuthRemoteDataSource {
     }
   }
 
+  /// 修改密码
+  Future<void> changePassword(String oldPassword, String newPassword) async {
+    try {
+      await dioClient.post(
+        '/auth/change-password',
+        data: {
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
+  /// 更新用户资料
+  Future<UserModel> updateProfile({
+    String? nickname,
+    String? avatarUrl,
+  }) async {
+    try {
+      final data = <String, dynamic>{};
+      if (nickname != null) data['nickname'] = nickname;
+      if (avatarUrl != null) data['avatarUrl'] = avatarUrl;
+      
+      final response = await dioClient.patch('/auth/profile', data: data);
+      return UserModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _handleDioError(e);
+    }
+  }
+
   Exception _handleDioError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;

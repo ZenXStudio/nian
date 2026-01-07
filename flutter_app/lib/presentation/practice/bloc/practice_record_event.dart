@@ -8,9 +8,14 @@ abstract class PracticeRecordEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// 加载用户方法列表（用于创建练习记录）
+class LoadUserMethodsForPractice extends PracticeRecordEvent {
+  const LoadUserMethodsForPractice();
+}
+
 /// 创建练习记录
 class CreatePracticeRecord extends PracticeRecordEvent {
-  final int methodId;
+  final int userMethodId;
   final int durationMinutes;
   final int moodBefore;
   final int moodAfter;
@@ -18,7 +23,7 @@ class CreatePracticeRecord extends PracticeRecordEvent {
   final String? note;
 
   const CreatePracticeRecord({
-    required this.methodId,
+    required this.userMethodId,
     required this.durationMinutes,
     required this.moodBefore,
     required this.moodAfter,
@@ -28,7 +33,7 @@ class CreatePracticeRecord extends PracticeRecordEvent {
 
   @override
   List<Object?> get props => [
-        methodId,
+        userMethodId,
         durationMinutes,
         moodBefore,
         moodAfter,

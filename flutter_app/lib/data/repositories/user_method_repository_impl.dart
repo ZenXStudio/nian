@@ -80,4 +80,9 @@ class UserMethodRepositoryImpl implements UserMethodRepository {
       return Left(UnknownFailure('删除方法失败: ${e.toString()}'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteUserMethod(int userMethodId) async {
+    return removeUserMethod(userMethodId);
+  }
 }

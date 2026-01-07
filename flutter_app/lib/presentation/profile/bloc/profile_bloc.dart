@@ -39,7 +39,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       (user) async {
         // 获取练习统计
         final statsResult = await practiceRepository.getPracticeStatistics(
-          days: 365, // 获取全年数据
+          startDate: DateTime.now().subtract(const Duration(days: 365)),
         );
 
         statsResult.fold(
@@ -119,7 +119,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       // 获取练习记录（最近365天）
       final recordsResult = await practiceRepository.getPracticeHistory(
-        days: 365,
+        page: 1,
+        pageSize: 1000,
       );
 
       final exportData = {
@@ -127,7 +128,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         'user': userResult.getOrElse(() => throw Exception()),
         'practice_records':
             recordsResult.getOrElse(() => []).map((r) => r.toString()).toList(),
-        'statistics': await practiceRepository.getPracticeStatistics(days: 365),
+        'statistics': (await practiceRepository.getPracticeStatistics(
+                  startDate: DateTime.now().subtract(const Duration(days: 365)),
+                )).fold((l) => null, (r) => r.toString()),
       };
 
       // 获取应用文档目录

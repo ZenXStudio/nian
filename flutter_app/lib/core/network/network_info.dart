@@ -17,33 +17,30 @@ class NetworkInfo {
   Future<bool> get isConnected async {
     final result = await _connectivity.checkConnectivity();
     
-    // 检查是否连接到任何网络
-    return result.any((connectivity) =>
-        connectivity == ConnectivityResult.mobile ||
-        connectivity == ConnectivityResult.wifi ||
-        connectivity == ConnectivityResult.ethernet);
+    // connectivity_plus 5.x 返回单个ConnectivityResult
+    return result != ConnectivityResult.none;
   }
   
   /// 获取当前网络连接类型
-  Future<List<ConnectivityResult>> get connectionType async {
+  Future<ConnectivityResult> get connectionType async {
     return await _connectivity.checkConnectivity();
   }
   
   /// 监听网络连接状态变化
-  Stream<List<ConnectivityResult>> get onConnectivityChanged {
+  Stream<ConnectivityResult> get onConnectivityChanged {
     return _connectivity.onConnectivityChanged;
   }
   
   /// 检查是否连接到WiFi
   Future<bool> get isConnectedToWiFi async {
     final result = await _connectivity.checkConnectivity();
-    return result.contains(ConnectivityResult.wifi);
+    return result == ConnectivityResult.wifi;
   }
   
   /// 检查是否使用移动数据
   Future<bool> get isConnectedToMobile async {
     final result = await _connectivity.checkConnectivity();
-    return result.contains(ConnectivityResult.mobile);
+    return result == ConnectivityResult.mobile;
   }
 }
 

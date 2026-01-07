@@ -21,7 +21,7 @@ class PracticeStatsBloc extends Bloc<PracticeStatsEvent, PracticeStatsState> {
     emit(const PracticeStatsLoading());
 
     final result = await practiceRepository.getPracticeStatistics(
-      days: event.days,
+      startDate: DateTime.now().subtract(Duration(days: event.days)),
     );
 
     result.fold(
@@ -41,7 +41,7 @@ class PracticeStatsBloc extends Bloc<PracticeStatsEvent, PracticeStatsState> {
     emit(const PracticeStatsLoading());
 
     final result = await practiceRepository.getPracticeStatistics(
-      days: event.days,
+      startDate: DateTime.now().subtract(Duration(days: event.days)),
     );
 
     result.fold(

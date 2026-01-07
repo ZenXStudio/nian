@@ -9,6 +9,7 @@ class EmptyState extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? onAction;
   final String? actionButtonText;
+  final String? actionText; // 别名
   
   const EmptyState({
     super.key,
@@ -17,6 +18,7 @@ class EmptyState extends StatelessWidget {
     this.icon,
     this.onAction,
     this.actionButtonText,
+    this.actionText,
   });
   
   @override
@@ -65,7 +67,7 @@ class EmptyState extends StatelessWidget {
                     vertical: 12,
                   ),
                 ),
-                child: Text(actionButtonText ?? '开始'),
+                child: Text(actionButtonText ?? actionText ?? '开始'),
               ),
             ],
           ],

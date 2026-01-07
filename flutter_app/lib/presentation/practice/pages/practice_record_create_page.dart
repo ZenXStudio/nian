@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/core/network/dio_client.dart';
 import 'package:mental_app/data/datasources/remote/practice_remote_data_source.dart';
 import 'package:mental_app/data/datasources/remote/user_method_remote_data_source.dart';
@@ -23,7 +24,8 @@ class PracticeRecordCreatePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final dioClient = DioClient();
+        const secureStorage = FlutterSecureStorage();
+        final dioClient = DioClient(secureStorage);
         final practiceDataSource = PracticeRemoteDataSource(dioClient);
         final userMethodDataSource = UserMethodRemoteDataSource(dioClient);
         final practiceRepository =
@@ -126,7 +128,7 @@ class _PracticeRecordCreateViewState
                               border: OutlineInputBorder(),
                             ),
                             items: userMethods
-                                .map((um) => DropdownMenuItem(
+                                .map((um) => DropdownMenuItem<int>(
                                       value: um.id,
                                       child: Text(um.method.name),
                                     ))
@@ -371,7 +373,8 @@ class _PracticeRecordCreateViewState
               durationMinutes: _durationMinutes,
               moodBefore: _moodBefore.toInt(),
               moodAfter: _moodAfter.toInt(),
-              notes: _notesController.text.trim().isEmpty
+              practiceDate: DateTime.now(),
+              note: _notesController.text.trim().isEmpty
                   ? null
                   : _notesController.text.trim(),
             ),

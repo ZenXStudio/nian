@@ -123,7 +123,7 @@ npm run dev
 
 #### 管理后台
 ```bash
-cd home/user/nian/admin-web
+cd admin-web
 npm install
 npm run dev
 # 访问 http://localhost:5173

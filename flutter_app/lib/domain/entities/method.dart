@@ -34,6 +34,18 @@ class Method extends Equatable {
   /// 方法内容（JSON格式）
   final Map<String, dynamic>? contentJson;
   
+  /// 封面图片URL（别名）
+  String? get coverImageUrl => imageUrl;
+  
+  /// 详细内容
+  String? get detailedContent => contentJson?['detailedContent'] as String?;
+  
+  /// 步骤列表
+  List<String> get steps => (contentJson?['steps'] as List<dynamic>?)?.cast<String>() ?? [];
+  
+  /// 注意事项
+  List<String> get precautions => (contentJson?['precautions'] as List<dynamic>?)?.cast<String>() ?? [];
+  
   /// 浏览次数
   final int viewCount;
   

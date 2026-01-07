@@ -60,7 +60,7 @@ curl http://localhost:3000/health
 ```
 nian/
 ├── backend/                # 后端API（Node.js）
-├── home/user/nian/admin-web/  # 管理后台（React）
+├── admin-web/              # 管理后台（React）
 ├── flutter_app/            # Flutter应用
 ├── database/               # 数据库初始化脚本
 ├── docs/                   # 文档
@@ -86,7 +86,7 @@ nian/
 | 管理员登录 | POST | /api/admin/login |
 | 方法管理 | CRUD | /api/admin/methods |
 | 审核 | POST | /api/admin/methods/:id/approve |
-| 统计 | GET | /api/admin/statistics/* |
+| 统계 | GET | /api/admin/statistics/* |
 
 ## Flutter应用
 

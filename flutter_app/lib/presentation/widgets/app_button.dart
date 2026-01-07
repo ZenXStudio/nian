@@ -197,4 +197,3 @@ class AppIconButton extends StatelessWidget {
     return button;
   }
 }
-", "original_text": null}

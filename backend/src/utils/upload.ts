@@ -124,4 +124,3 @@ export const validateFileSize = (file: Express.Multer.File): void => {
     throw new AppError(400, 'FILE_TOO_LARGE', `文件大小超过限制 (${limitMB}MB)`);
   }
 };
-};

@@ -53,9 +53,9 @@ class DateFormatter {
   /// [dateTime] 要格式化的日期时间
   /// [format] 格式化模板，默认为 yyyy-MM-dd HH:mm:ss
   static String formatDateTime(
-    DateTime dateTime,
-    {String format = defaultDateTimeFormat},
-  ) {
+    DateTime dateTime, {
+    String format = defaultDateTimeFormat,
+  }) {
     try {
       return DateFormat(format).format(dateTime);
     } catch (e) {

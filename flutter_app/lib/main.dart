@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/config/theme.dart';
 import 'package:mental_app/core/network/dio_client.dart';
 import 'package:mental_app/core/storage/secure_storage_helper.dart';
@@ -27,8 +28,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 初始化核心组件
-    final dioClient = DioClient();
-    final secureStorage = SecureStorageHelper();
+    const flutterSecureStorage = FlutterSecureStorage();
+    final dioClient = DioClient(flutterSecureStorage);
+    final secureStorage = SecureStorageHelper(flutterSecureStorage);
     
     // 初始化数据源
     final authDataSource = AuthRemoteDataSource(dioClient);

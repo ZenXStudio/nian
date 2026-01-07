@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mental_app/presentation/widgets/loading_indicator.dart';
 import 'package:mental_app/presentation/widgets/empty_state.dart';
 import 'package:mental_app/presentation/widgets/error_widget.dart' as app_error;
@@ -20,7 +21,8 @@ class MethodDiscoverPage extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         // 初始化依赖
-        final dioClient = DioClient();
+        const secureStorage = FlutterSecureStorage();
+        final dioClient = DioClient(secureStorage);
         final remoteDataSource = MethodRemoteDataSource(dioClient);
         final repository = MethodRepositoryImpl(remoteDataSource: remoteDataSource);
         
