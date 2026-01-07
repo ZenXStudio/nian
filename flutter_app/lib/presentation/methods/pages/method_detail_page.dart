@@ -131,7 +131,7 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
             onPressed: () {
               final methodId = (context.widget as Scaffold)
                   .body as BlocConsumer<MethodDetailBloc, MethodDetailState>;
-              context.read<MethodDetailBloc>().add(LoadMethodDetail(1));
+              context.read<MethodDetailBloc>().add(const LoadMethodDetail(1));
             },
             child: const Text('重试'),
           ),

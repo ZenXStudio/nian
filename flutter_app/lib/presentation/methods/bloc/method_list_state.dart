@@ -76,8 +76,6 @@ class MethodListError extends MethodListState {
   @override
   List<Object?> get props => [message];
 }
-import 'package:equatable/equatable.dart';
-import 'package:mental_app/domain/entities/method.dart';
 
 /// 方法列表状态基类
 abstract class MethodListState extends Equatable {

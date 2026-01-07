@@ -150,10 +150,10 @@ flutter run -d windows  # 或 chrome, android
 | 文档 | 说明 |
 |------|------|
 | [README.md](../README.md) | 项目主文档 |
-| [FLUTTER_SETUP_GUIDE.md](../FLUTTER_SETUP_GUIDE.md) | Flutter环境配置 |
-| [FLUTTER_ARCHITECTURE.md](../FLUTTER_ARCHITECTURE.md) | Flutter架构设计 |
+| [flutter/SETUP_GUIDE.md](flutter/SETUP_GUIDE.md) | Flutter环境配置 |
+| [flutter/ARCHITECTURE.md](flutter/ARCHITECTURE.md) | Flutter架构设计 |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | 部署指南 |
 | [TEST_REPORT.md](TEST_REPORT.md) | 测试报告 |
 
 ---
-**更新日期**: 2026-01-06
+**更新日期**: 2026-01-07

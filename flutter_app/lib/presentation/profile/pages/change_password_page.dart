@@ -237,7 +237,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     if (password.length >= 8) strength++;
     if (password.contains(RegExp(r'[0-9]'))) strength++;
     if (password.contains(RegExp(r'[a-z]')) &&
-        password.contains(RegExp(r'[A-Z]'))) strength++;
+        password.contains(RegExp(r'[A-Z]'))) {
+      strength++;
+    }
     if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength++;
 
     if (strength <= 2) {
@@ -348,11 +350,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     }
   }
 }
-import 'package:flutter/material.dart';
-import 'package:mental_app/core/network/dio_client.dart';
-import 'package:mental_app/data/datasources/remote/auth_remote_data_source.dart';
-import 'package:mental_app/data/repositories/auth_repository_impl.dart';
-import 'package:mental_app/core/storage/secure_storage_helper.dart';
 
 /// 修改密码页面
 class ChangePasswordPage extends StatefulWidget {
@@ -587,7 +584,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     if (password.length >= 8) strength++;
     if (password.contains(RegExp(r'[0-9]'))) strength++;
     if (password.contains(RegExp(r'[a-z]')) &&
-        password.contains(RegExp(r'[A-Z]'))) strength++;
+        password.contains(RegExp(r'[A-Z]'))) {
+      strength++;
+    }
     if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength++;
 
     if (strength <= 2) {

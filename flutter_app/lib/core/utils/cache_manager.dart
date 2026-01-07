@@ -111,8 +111,6 @@ class CacheManager {
     }
   }
 }
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// 缓存管理器
 class CacheManager {

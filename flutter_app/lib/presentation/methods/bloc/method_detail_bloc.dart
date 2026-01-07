@@ -68,11 +68,6 @@ class MethodDetailBloc extends Bloc<MethodDetailEvent, MethodDetailState> {
     );
   }
 }
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mental_app/domain/repositories/method_repository.dart';
-import 'package:mental_app/domain/repositories/user_method_repository.dart';
-import 'package:mental_app/presentation/methods/bloc/method_detail_event.dart';
-import 'package:mental_app/presentation/methods/bloc/method_detail_state.dart';
 
 /// 方法详情 BLoC
 /// 

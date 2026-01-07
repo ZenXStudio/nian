@@ -153,11 +153,11 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem('总练习', '${totalCount}次'),
+              _buildStatItem('总练习', '$totalCount次'),
               _buildDivider(),
-              _buildStatItem('本周', '${weekCount}次'),
+              _buildStatItem('本周', '$weekCount次'),
               _buildDivider(),
-              _buildStatItem('连续', '${consecutiveDays}天'),
+              _buildStatItem('连续', '$consecutiveDays天'),
             ],
           ),
         );
@@ -464,6 +464,6 @@ class _PracticeHistoryViewState extends State<_PracticeHistoryView>
           ],
         ),
       ),
-    );
+    )
   }
 }

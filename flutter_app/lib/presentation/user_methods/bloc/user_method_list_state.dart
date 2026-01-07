@@ -70,8 +70,6 @@ class UserMethodActionSuccess extends UserMethodListState {
   @override
   List<Object?> get props => [message, methods];
 }
-import 'package:equatable/equatable.dart';
-import 'package:mental_app/domain/entities/user_method.dart';
 
 /// 个人方法库列表状态基类
 abstract class UserMethodListState extends Equatable {

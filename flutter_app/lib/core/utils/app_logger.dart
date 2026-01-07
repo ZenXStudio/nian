@@ -188,6 +188,7 @@ class AppLogger {
 
 /// 自定义日志过滤器
 class _AppLogFilter extends LogFilter {
+  @override
   final Level level;
   
   _AppLogFilter(this.level);

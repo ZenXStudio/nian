@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:mental_app/domain/entities/method.dart';
 
 /// 方法列表事件基类
 abstract class MethodListEvent extends Equatable {
@@ -46,8 +45,6 @@ class LoadMoreMethods extends MethodListEvent {
 class RefreshMethods extends MethodListEvent {
   const RefreshMethods();
 }
-import 'package:equatable/equatable.dart';
-import 'package:mental_app/domain/entities/method.dart';
 
 /// 方法列表事件基类
 abstract class MethodListEvent extends Equatable {

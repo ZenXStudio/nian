@@ -28,8 +28,6 @@ Future<void> configureDependencies({String environment = Environment.prod}) asyn
 Future<void> resetDependencies() async {
   await getIt.reset();
 }
-import 'package:get_it/get_it.dart';
-import 'package:injectable/injectable.dart';
 
 import 'injection.config.dart';
 

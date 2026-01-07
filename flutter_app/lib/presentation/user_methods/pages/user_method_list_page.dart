@@ -355,7 +355,7 @@ class _UserMethodListViewState extends State<_UserMethodListView> {
 
     if (difference == 0) return '今天';
     if (difference == 1) return '昨天';
-    if (difference < 7) return '${difference}天前';
+    if (difference < 7) return '$difference天前';
     return '${date.month}/${date.day}';
   }
 

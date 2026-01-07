@@ -46,7 +46,6 @@ class AddToSearchHistory extends MethodSearchEvent {
 class ClearSearchHistory extends MethodSearchEvent {
   const ClearSearchHistory();
 }
-import 'package:equatable/equatable.dart';
 
 /// 方法搜索事件基类
 abstract class MethodSearchEvent extends Equatable {

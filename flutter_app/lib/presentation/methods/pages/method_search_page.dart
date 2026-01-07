@@ -431,18 +431,6 @@ class _MethodSearchViewState extends State<_MethodSearchView> {
     return categoryMap[category] ?? category;
   }
 }
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mental_app/core/network/dio_client.dart';
-import 'package:mental_app/data/datasources/remote/method_remote_data_source.dart';
-import 'package:mental_app/data/repositories/method_repository_impl.dart';
-import 'package:mental_app/presentation/methods/bloc/method_search_bloc.dart';
-import 'package:mental_app/presentation/methods/bloc/method_search_event.dart';
-import 'package:mental_app/presentation/methods/bloc/method_search_state.dart';
-import 'package:mental_app/presentation/widgets/loading_indicator.dart';
-import 'package:mental_app/presentation/widgets/empty_state.dart';
-import 'package:mental_app/domain/entities/method.dart';
 
 /// 方法搜索页面
 class MethodSearchPage extends StatelessWidget {

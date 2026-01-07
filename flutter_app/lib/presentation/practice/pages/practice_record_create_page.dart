@@ -120,7 +120,7 @@ class _PracticeRecordCreateViewState
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
-                            value: _selectedMethodId,
+                            initialValue: _selectedMethodId,
                             decoration: const InputDecoration(
                               labelText: '练习方法',
                               border: OutlineInputBorder(),
@@ -240,7 +240,7 @@ class _PracticeRecordCreateViewState
                                 width: 40,
                                 child: Text(
                                   '${_moodBefore.toInt()}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.orange,
@@ -285,7 +285,7 @@ class _PracticeRecordCreateViewState
                                 width: 40,
                                 child: Text(
                                   '${_moodAfter.toInt()}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green,

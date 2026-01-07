@@ -42,8 +42,6 @@ class UserMethodModel extends UserMethod {
     };
   }
 }
-import 'package:mental_app/domain/entities/user_method.dart';
-import 'package:mental_app/data/models/method_model.dart';
 
 /// 用户方法Model
 class UserMethodModel extends UserMethod {

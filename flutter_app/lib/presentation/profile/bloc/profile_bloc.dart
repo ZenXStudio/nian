@@ -3,7 +3,6 @@ import 'package:mental_app/domain/repositories/auth_repository.dart';
 import 'package:mental_app/domain/repositories/practice_repository.dart';
 import 'package:mental_app/presentation/profile/bloc/profile_event.dart';
 import 'package:mental_app/presentation/profile/bloc/profile_state.dart';
-import 'package:mental_app/core/storage/shared_prefs_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';

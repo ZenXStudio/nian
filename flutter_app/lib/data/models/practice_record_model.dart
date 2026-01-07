@@ -44,8 +44,6 @@ class PracticeRecordModel extends PracticeRecord {
     };
   }
 }
-import 'package:mental_app/domain/entities/practice_record.dart';
-import 'package:mental_app/data/models/method_model.dart';
 
 /// 练习记录数据模型
 class PracticeRecordModel extends PracticeRecord {

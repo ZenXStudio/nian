@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mental_app/presentation/auth/bloc/auth_bloc.dart';
-import 'package:mental_app/presentation/auth/bloc/auth_event.dart';
 import 'package:mental_app/presentation/auth/bloc/auth_state.dart';
 
 /// 启动页

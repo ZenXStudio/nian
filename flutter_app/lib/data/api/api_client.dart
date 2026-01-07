@@ -101,9 +101,6 @@ class ApiClient {
     );
   }
 }
-import 'package:dio/dio.dart';
-import 'package:mental_app/config/api_constants.dart';
-import 'package:mental_app/data/storage/secure_storage.dart';
 
 class ApiClient {
   late final Dio _dio;

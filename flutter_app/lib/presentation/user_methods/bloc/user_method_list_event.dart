@@ -61,7 +61,6 @@ class DeleteUserMethod extends UserMethodListEvent {
   @override
   List<Object?> get props => [userMethodId];
 }
-import 'package:equatable/equatable.dart';
 
 /// 个人方法库列表事件基类
 abstract class UserMethodListEvent extends Equatable {

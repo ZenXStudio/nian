@@ -57,8 +57,6 @@ class SearchHistoryLoaded extends MethodSearchState {
   @override
   List<Object?> get props => [history];
 }
-import 'package:equatable/equatable.dart';
-import 'package:mental_app/domain/entities/method.dart';
 
 /// 方法搜索状态基类
 abstract class MethodSearchState extends Equatable {
