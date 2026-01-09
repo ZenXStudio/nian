@@ -20,12 +20,12 @@ abstract class AuthRepository {
   ///
   /// [email] 用户邮箱
   /// [password] 用户密码
-  /// [nickname] 用户昵称
+  /// [nickname] 用户昵称（可选）
   /// 返回 [User] 或 [Failure]
   Future<Either<Failure, User>> register({
     required String email,
     required String password,
-    required String nickname,
+    String? nickname,
   });
 
   /// 获取当前用户信息

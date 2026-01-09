@@ -26,16 +26,20 @@ class AuthRemoteDataSource {
   Future<Map<String, dynamic>> register(
     String email,
     String password,
-    String nickname,
+    String? nickname,
   ) async {
     try {
+      final data = <String, dynamic>{
+        'email': email,
+        'password': password,
+      };
+      if (nickname != null && nickname.isNotEmpty) {
+        data['nickname'] = nickname;
+      }
+      
       final response = await dioClient.post(
         '/auth/register',
-        data: {
-          'email': email,
-          'password': password,
-          'nickname': nickname,
-        },
+        data: data,
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {

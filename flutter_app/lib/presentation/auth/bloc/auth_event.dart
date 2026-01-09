@@ -31,12 +31,12 @@ class LoginRequested extends AuthEvent {
 class RegisterRequested extends AuthEvent {
   final String email;
   final String password;
-  final String nickname;
+  final String? nickname;
 
   const RegisterRequested({
     required this.email,
     required this.password,
-    required this.nickname,
+    this.nickname,
   });
 
   @override

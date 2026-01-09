@@ -16,7 +16,7 @@ class UserModel extends User {
     return UserModel(
       id: json['id'] as int,
       email: json['email'] as String,
-      nickname: json['nickname'] as String,
+      nickname: (json['nickname'] as String?) ?? '',
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }

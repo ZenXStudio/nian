@@ -4,27 +4,36 @@ import 'package:mental_app/presentation/auth/bloc/auth_bloc.dart';
 import 'package:mental_app/presentation/auth/bloc/auth_state.dart';
 
 /// 启动页
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
+
+  @override
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> {
+  bool _hasNavigated = false;
+
+  void _navigate(BuildContext context, AuthState state) {
+    if (_hasNavigated) return;
+    
+    if (state is Authenticated) {
+      _hasNavigated = true;
+      Navigator.of(context).pushReplacementNamed('/home');
+    } else if (state is Unauthenticated) {
+      _hasNavigated = true;
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is Authenticated) {
-          Navigator.of(context).pushReplacementNamed('/home');
-        } else if (state is Unauthenticated) {
-          Navigator.of(context).pushReplacementNamed('/login');
-        }
-      },
+      listener: (context, state) => _navigate(context, state),
       builder: (context, state) {
-        // 如果已经是最终状态，主动导航
+        // 初始状态时也检查一次
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (state is Authenticated) {
-            Navigator.of(context).pushReplacementNamed('/home');
-          } else if (state is Unauthenticated) {
-            Navigator.of(context).pushReplacementNamed('/login');
-          }
+          _navigate(context, state);
         });
         
         return Scaffold(

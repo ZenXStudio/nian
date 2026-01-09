@@ -50,7 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> register({
     required String email,
     required String password,
-    required String nickname,
+    String? nickname,
   }) async {
     try {
       final result = await remoteDataSource.register(email, password, nickname);

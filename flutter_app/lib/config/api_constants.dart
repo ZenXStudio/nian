@@ -17,14 +17,14 @@ class ApiConstants {
   static const String getRecommendedMethods = '/methods/recommendations';
   
   // 用户方法相关
-  static const String getUserMethods = '/user-methods';
-  static const String addUserMethod = '/user-methods';
-  static const String removeUserMethod = '/user-methods/:id';
+  static const String getUserMethods = '/user/methods';
+  static const String addUserMethod = '/user/methods';
+  static const String removeUserMethod = '/user/methods/:id';
   
   // 练习记录相关
-  static const String createPractice = '/practices';
-  static const String getPractices = '/practices';
-  static const String getPracticeStats = '/practices/stats';
+  static const String createPractice = '/user/practice';
+  static const String getPractices = '/user/practice';
+  static const String getPracticeStats = '/user/practice/stats';
   
   // 超时设置
   static const Duration connectionTimeout = Duration(seconds: 15);

@@ -34,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
             RegisterRequested(
               email: _emailController.text.trim(),
               password: _passwordController.text,
-              nickname: _nicknameController.text.trim(),
+              nickname: _nicknameController.text.trim().isEmpty ? null : _nicknameController.text.trim(),
             ),
           );
     }
@@ -86,14 +86,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 16),
                     AppTextField(
                       controller: _nicknameController,
-                      labelText: '昵称',
+                      labelText: '昵称（可选）',
                       hintText: '请输入昵称',
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '请输入昵称';
-                        }
-                        if (value.length < 2) {
-                          return '昵称至少2位';
+                        if (value != null && value.isNotEmpty) {
+                          if (value.length < 2) {
+                            return '昵称至少2位';
+                          }
                         }
                         return null;
                       },
