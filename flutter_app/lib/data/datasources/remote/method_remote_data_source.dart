@@ -26,8 +26,11 @@ class MethodRemoteDataSource {
           'pageSize': pageSize,
         },
       );
-      final data = response.data['data'] as List;
-      return data.map((json) => MethodModel.fromJson(json)).toList();
+      // API返回格式: {success: true, data: {list: [...], total, page, pageSize}}
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>;
+      final list = data['list'] as List;
+      return list.map((json) => MethodModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -37,7 +40,9 @@ class MethodRemoteDataSource {
   Future<MethodModel> getMethodDetail(int methodId) async {
     try {
       final response = await dioClient.get('/methods/$methodId');
-      return MethodModel.fromJson(response.data as Map<String, dynamic>);
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
+      return MethodModel.fromJson(data);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -58,8 +63,11 @@ class MethodRemoteDataSource {
           'pageSize': pageSize,
         },
       );
-      final data = response.data['data'] as List;
-      return data.map((json) => MethodModel.fromJson(json)).toList();
+      // API返回格式: {success: true, data: {list: [...], total, page, pageSize}}
+      final responseData = response.data as Map<String, dynamic>;
+      final data = responseData['data'] as Map<String, dynamic>;
+      final list = data['list'] as List;
+      return list.map((json) => MethodModel.fromJson(json as Map<String, dynamic>)).toList();
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -68,7 +76,17 @@ class MethodRemoteDataSource {
   Exception _handleDioError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data['message'] ?? '请求失败';
+      String message = '请求失败';
+      
+      final responseData = error.response!.data;
+      if (responseData is Map<String, dynamic>) {
+        final errorObj = responseData['error'];
+        if (errorObj is Map<String, dynamic>) {
+          message = (errorObj['message'] as String?) ?? '请求失败';
+        } else {
+          message = (responseData['message'] as String?) ?? '请求失败';
+        }
+      }
       return ServerException(message, statusCode: statusCode);
     }
     

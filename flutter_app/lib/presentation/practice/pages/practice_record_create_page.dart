@@ -36,7 +36,7 @@ class PracticeRecordCreatePage extends StatelessWidget {
         return PracticeRecordBloc(
           practiceRepository: practiceRepository,
           userMethodRepository: userMethodRepository,
-        )..add(LoadUserMethodsForPractice());
+        )..add(const LoadUserMethodsForPractice());
       },
       child: _PracticeRecordCreateView(userMethodId: userMethodId),
     );

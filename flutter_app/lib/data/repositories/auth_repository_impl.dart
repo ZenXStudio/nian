@@ -24,8 +24,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final result = await remoteDataSource.login(email, password);
-      final token = result['token'] as String;
-      final userJson = result['user'] as Map<String, dynamic>;
+      final data = result['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        return Left(UnknownFailure('登录失败: 无效的响应数据'));
+      }
+      final token = data['token'] as String?;
+      final userJson = data['user'] as Map<String, dynamic>?;
+      
+      if (token == null || userJson == null) {
+        return Left(UnknownFailure('登录失败: 缺少必要数据'));
+      }
       
       // 保存Token
       await secureStorage.saveAuthToken(token);
@@ -54,8 +62,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final result = await remoteDataSource.register(email, password, nickname);
-      final token = result['token'] as String;
-      final userJson = result['user'] as Map<String, dynamic>;
+      final data = result['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        return Left(UnknownFailure('注册失败: 无效的响应数据'));
+      }
+      final token = data['token'] as String?;
+      final userJson = data['user'] as Map<String, dynamic>?;
+      
+      if (token == null || userJson == null) {
+        return Left(UnknownFailure('注册失败: 缺少必要数据'));
+      }
       
       // 保存Token
       await secureStorage.saveAuthToken(token);

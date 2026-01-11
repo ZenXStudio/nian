@@ -64,6 +64,8 @@ nian/
 ├── flutter_app/            # Flutter应用
 ├── database/               # 数据库初始化脚本
 ├── docs/                   # 文档
+├── start-web.bat           # Web开发环境启动脚本
+├── stop-web.bat            # 停止开发服务脚本
 └── docker-compose.yml      # Docker配置
 ```
 
@@ -88,13 +90,34 @@ nian/
 | 审核 | POST | /api/admin/methods/:id/approve |
 | 统계 | GET | /api/admin/statistics/* |
 
-## Flutter应用
+## 本地开发
 
-### 运行
+### Web开发环境（推荐）
+
 ```bash
+# 一键启动（包含后端 + Flutter Web）
+start-web.bat
+
+# 停止所有服务
+stop-web.bat
+```
+
+启动后访问：
+- Web应用: http://localhost:8080
+- 后端API: http://localhost:3000
+
+### 手动启动
+
+```bash
+# 1. 启动后端
+cd backend
+npm run dev
+
+# 2. 启动Flutter（新终端）
 cd flutter_app
 flutter pub get
-flutter run -d windows  # 或 chrome, android
+flutter run -d chrome --web-port=8080  # Web
+flutter run -d windows                  # Windows桌面
 ```
 
 ### 页面清单

@@ -51,7 +51,10 @@ class AuthRemoteDataSource {
   Future<UserModel> getCurrentUser() async {
     try {
       final response = await dioClient.get('/auth/me');
-      return UserModel.fromJson(response.data as Map<String, dynamic>);
+      final responseData = response.data as Map<String, dynamic>;
+      // API返回格式: {success: true, data: {...}}
+      final data = responseData['data'] as Map<String, dynamic>? ?? responseData;
+      return UserModel.fromJson(data);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -83,7 +86,10 @@ class AuthRemoteDataSource {
       if (avatarUrl != null) data['avatarUrl'] = avatarUrl;
       
       final response = await dioClient.patch('/auth/profile', data: data);
-      return UserModel.fromJson(response.data as Map<String, dynamic>);
+      final responseData = response.data as Map<String, dynamic>;
+      // API返回格式: {success: true, data: {...}}
+      final userData = responseData['data'] as Map<String, dynamic>? ?? responseData;
+      return UserModel.fromJson(userData);
     } on DioException catch (e) {
       throw _handleDioError(e);
     }
@@ -92,7 +98,21 @@ class AuthRemoteDataSource {
   Exception _handleDioError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data['message'] ?? '请求失败';
+      String message = '请求失败';
+      
+      // 安全地提取错误消息
+      // API错误格式: {success: false, error: {code: ..., message: ...}}
+      final responseData = error.response!.data;
+      if (responseData is Map<String, dynamic>) {
+        final errorObj = responseData['error'];
+        if (errorObj is Map<String, dynamic>) {
+          message = (errorObj['message'] as String?) ?? '请求失败';
+        } else {
+          message = (responseData['message'] as String?) ?? '请求失败';
+        }
+      } else if (responseData is String) {
+        message = responseData;
+      }
       
       if (statusCode == 401) {
         return AuthenticationException(message);

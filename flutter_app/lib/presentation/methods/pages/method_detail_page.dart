@@ -237,7 +237,7 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
                 ],
 
                 // 使用步骤
-                if (method.steps != null && method.steps!.isNotEmpty) ...[
+                if (method.steps.isNotEmpty) ...[
                   Text(
                     '使用步骤',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -245,7 +245,7 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
                         ),
                   ),
                   const SizedBox(height: 8),
-                  ...method.steps!.asMap().entries.map((entry) {
+                  ...method.steps.asMap().entries.map((entry) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Row(
@@ -265,12 +265,12 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 16),
                 ],
 
                 // 注意事项
-                if (method.precautions != null && method.precautions!.isNotEmpty) ...[
+                if (method.precautions.isNotEmpty) ...[
                   Text(
                     '注意事项',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -278,7 +278,7 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
                         ),
                   ),
                   const SizedBox(height: 8),
-                  ...method.precautions!.map((precaution) {
+                  ...method.precautions.map((precaution) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Row(
@@ -295,7 +295,7 @@ class _MethodDetailViewState extends State<_MethodDetailView> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 16),
                 ],
 
